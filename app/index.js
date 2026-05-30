@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 // connecting to database before connecting to app
 mongoose
   .connect(
-    "mongodb+srv://db_admin:4vcFUFkEP6xZrziI@backenddb.vjrv8kg.mongodb.net/?appName=BackendDB",
+    "mongodb://mongo:27017/mongo-database",
   )
   .then(() => {
     console.log("Connected to database succesfully");
