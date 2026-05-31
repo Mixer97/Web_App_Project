@@ -1,11 +1,8 @@
-require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const user = require("./models/user.model");
-const userRoutes = require("./routes/test-product.route");
-
+const Product = require("./models/test-product.model");
 const app = express();
-
+const productRoutes = require("./routes/test-product.route");
 
 // middleware
 app.use(express.json());
@@ -25,7 +22,7 @@ app.get("/", (req, res) => {
 // connecting to database before connecting to app
 mongoose
   .connect(
-    process.env.MONGO_URL,
+    "mongodb://mongo:27017/mongo-database",
   )
   .then(() => {
     console.log("Connected to database succesfully");
