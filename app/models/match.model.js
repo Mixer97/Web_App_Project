@@ -10,4 +10,6 @@ const matchSchema = new mongoose.Schema({
   result: { type: String, required: true },
 });
 
-module.exports = matchSchema;
+const Match = mongoose.model("Match", MmtchSchema);
+
+module.exports = Match;

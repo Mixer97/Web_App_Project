@@ -7,4 +7,6 @@ const bookingSchema = new mongoose.Schema({
   slot: { type: String, required: true }   
 });
 
-module.exports = bookingSchema;
+const Booking = mongoose.model("Booking", bookingSchema);
+
+module.exports = Booking;

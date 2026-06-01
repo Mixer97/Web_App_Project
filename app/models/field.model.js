@@ -7,4 +7,6 @@ const fieldSchema = new mongoose.Schema({
   slots: [{ type: String }]
 });
 
-module.exports = fieldSchema;
+const Field = mongoose.model("Field", fieldSchema);
+
+module.exports = Field;

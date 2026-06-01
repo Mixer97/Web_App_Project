@@ -9,4 +9,6 @@ const tournamentSchema = new mongoose.Schema({
   status: { type: String, required: true },
 });
 
-module.exports = tournamentSchema;
+const Tournament = mongoose.model("Tournament", tournamentSchema);
+
+module.exports = Tournament;
