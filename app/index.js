@@ -3,9 +3,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./db/connect");
+
 const { userWhoAmI } = require("./controllers/auth.controller");
-const { verifyToken } = require("./middleware/auth")
+const { verifyToken } = require("./middleware/auth");
+
 const authRoutes = require("./routes/auth.route");
+const fieldRoutes = require("./routes/field.route");
 
 const app = express();
 
@@ -16,6 +19,7 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/auth", authRoutes);
+app.use("/api/fields", fieldRoutes);
 
 // base test
 app.get("/", (req, res) => {

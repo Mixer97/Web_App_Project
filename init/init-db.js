@@ -1,30 +1,6 @@
-// initialization test for db
+
 
 db = db.getSiblingDB('sportapp'); // creates & switches to your DB
-
-// --- Fields ---
-/*
-db.fields.insertMany([
-  {
-    name: "Campo A",
-    sport: "football",
-    address: "Via Roma 1, Milano",
-    slots: ["09:00", "11:00", "14:00", "16:00", "18:00"]
-  },
-  {
-    name: "Campo B",
-    sport: "basketball",
-    address: "Via Garibaldi 5, Roma",
-    slots: ["10:00", "12:00", "15:00", "17:00"]
-  },
-  {
-    name: "Campo C",
-    sport: "volleyball",
-    address: "Via Dante 9, Napoli",
-    slots: ["09:00", "11:00", "14:00", "16:00"]
-  }
-]);
-*/
 
 // --- Users (passwords are plaintext here — hash them in real seeds) ---
 db.users.insertMany([
@@ -62,6 +38,45 @@ db.users.insertMany([
     email: "paolo@example.com",
     name: "Paolo",
     surname: "Galli"
+  }
+]);
+
+db.fields.insertMany([
+  {
+    name: "Campo Football 1",
+    sport: "football",
+    address: "Via Roma 1, Milano",
+    slots: ["09:00", "11:00", "14:00", "16:00", "18:00"]
+  },
+  {
+    name: "Campo Football 2",
+    sport: "football",
+    address: "Via Torino 10, Torino",
+    slots: ["10:00", "12:00", "15:00", "17:00"]
+  },
+  {
+    name: "Campo Volleyball 1",
+    sport: "volleyball",
+    address: "Via Dante 9, Napoli",
+    slots: ["09:00", "11:00", "14:00", "16:00"]
+  },
+  {
+    name: "Campo Volleyball 2",
+    sport: "volleyball",
+    address: "Corso Italia 22, Firenze",
+    slots: ["10:00", "12:00", "15:00", "18:00"]
+  },
+  {
+    name: "Campo Basketball 1",
+    sport: "basketball",
+    address: "Via Garibaldi 5, Roma",
+    slots: ["09:30", "11:30", "14:30", "16:30"]
+  },
+  {
+    name: "Campo Basketball 2",
+    sport: "basketball",
+    address: "Piazza Duomo 3, Bologna",
+    slots: ["10:30", "12:30", "15:30", "17:30"]
   }
 ]);
 
