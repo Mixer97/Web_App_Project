@@ -3,7 +3,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./db/connect");
-const userRoutes = require("./routes/test-product.route");
+const { userWhoAmI } = require("./controllers/auth.controller");
+const { verifyToken } = require("./middleware/auth")
 const authRoutes = require("./routes/auth.route");
 
 const app = express();
@@ -21,5 +22,8 @@ app.get("/", (req, res) => {
   res.send("Hello from Node API Server");
 });
 
+// whoamI functionality
+app.get("/api/whoami", verifyToken, userWhoAmI);
+
 // connect to DB before connecting to app
-connectDB(app)
+connectDB(app);
