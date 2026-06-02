@@ -80,4 +80,46 @@ db.fields.insertMany([
   }
 ]);
 
+// --- Bookings ---
+const mario = db.users.findOne({ username: "mario" });
+const luigi = db.users.findOne({ username: "luigi" });
+const anna = db.users.findOne({ username: "anna" });
+
+const fieldFootball1 = db.fields.findOne({ name: "Campo Football 1" });
+const fieldBasket1 = db.fields.findOne({ name: "Campo Basketball 1" });
+const fieldVolley1 = db.fields.findOne({ name: "Campo Volleyball 1" });
+
+db.bookings.insertMany([
+  {
+    fieldId: fieldFootball1._id.toString(),
+    userId: mario._id.toString(),
+    date: "2026-06-03",
+    slot: "09:00"
+  },
+  {
+    fieldId: fieldFootball1._id.toString(),
+    userId: luigi._id.toString(),
+    date: "2026-06-03",
+    slot: "11:00"
+  },
+  {
+    fieldId: fieldBasket1._id.toString(),
+    userId: anna._id.toString(),
+    date: "2026-06-04",
+    slot: "14:30"
+  },
+  {
+    fieldId: fieldVolley1._id.toString(),
+    userId: mario._id.toString(),
+    date: "2026-06-05",
+    slot: "16:00"
+  },
+  {
+    fieldId: fieldBasket1._id.toString(),
+    userId: luigi._id.toString(),
+    date: "2026-06-06",
+    slot: "09:30"
+  }
+]);
+
 print("Database initialized successfully");
