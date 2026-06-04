@@ -75,7 +75,7 @@ const createFieldBooking = async (req, res) => {
     const { date, slot } = req.body;
     const slotsAvailable = await getAvailableSlots(req.params.id, date);
     if (!slotsAvailable.includes(slot)) {
-      return res.status(409).json({ msg: "Slot already booked" });
+      return res.status(409).json({ msg: "Slot already booked or time slot malformed" });
     } else {
       const booking = await Booking.create({
         fieldId: req.params.id,

@@ -14,7 +14,7 @@ const userSignup = async (req, res) => {
       let id = lastUser?.id !== undefined ? lastUser.id : -1;
       id++;
       const hashed = await bcrypt.hash(password, 10);
-      const newUser = { username, password:hashed, name, surname, email };
+      const newUser = { username, password: hashed, name, surname, email };
       await User.create(newUser);
       return res.status(201).json({ msg: "User created successfully" });
     }
@@ -29,7 +29,11 @@ const userSignin = async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     console.log(user);
-    if (user && await bcrypt.compare(password, user.password) && user.username === username) {
+    if (
+      user &&
+      (await bcrypt.compare(password, user.password)) &&
+      user.username === username
+    ) {
       const data = { id: user.id };
       const token = jwt.sign(data, process.env.JWT_SECRET, {
         expiresIn: 86400, // 24 hours
@@ -46,7 +50,12 @@ const userSignin = async (req, res) => {
 
 const userWhoAmI = async (req, res) => {
   try {
+    if (!req.userId) {
+      return res.status(400).json({ msg: "User not registered yet" });
+    }
+
     const user = await User.findById(req.userId).select("-password");
+
     return res.json(user);
   } catch (error) {
     return res.status(500).json({ msg: "Internal Error" });

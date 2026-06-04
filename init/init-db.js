@@ -122,4 +122,26 @@ db.bookings.insertMany([
   }
 ]);
 
+
+// --- Tournaments ---
+
+db.tournaments.insertMany([
+  {
+    name: "Summer Football Cup",
+    sport: "football",
+    maxTeams: 8,
+    startDate: "2026-06-20",
+    creatorId: mario._id.toString(),
+    status: "active",
+  },
+  {
+    name: "City Volleyball Trophy",
+    sport: "volleyball",
+    maxTeams: 6,
+    startDate: "2026-07-05",
+    creatorId: luigi._id.toString(),
+    status: "completed",
+  },
+]);
+
 print("Database initialized successfully");

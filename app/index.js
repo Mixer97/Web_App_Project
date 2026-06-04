@@ -9,6 +9,7 @@ const { verifyToken } = require("./middleware/auth");
 
 const authRoutes = require("./routes/auth.route");
 const fieldRoutes = require("./routes/field.route");
+const tournamentRoutes = require("./routes/tournament.route");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/fields", fieldRoutes);
+app.use("/api/tournaments", tournamentRoutes);
 
 // base test
 app.get("/", (req, res) => {
