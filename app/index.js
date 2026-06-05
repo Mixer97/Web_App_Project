@@ -11,6 +11,7 @@ const authRoutes = require("./routes/auth.route");
 const fieldRoutes = require("./routes/field.route");
 const tournamentRoutes = require("./routes/tournament.route");
 const matchRoutes = require("./routes/match.route");
+const userRoutes = require("./routes/user.route");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/fields", fieldRoutes);
 app.use("/api/tournaments", tournamentRoutes);
 app.use("/api/matches", matchRoutes);
+app.user("/api/users", userRoutes);
 
 // base test
 app.get("/", (req, res) => {

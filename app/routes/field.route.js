@@ -1,6 +1,4 @@
 const express = require("express");
-const User = require("../models/user.model");
-const Field = require("../models/field.model");
 const { verifyToken } = require("../middleware/auth");
 const {
   fieldQuery,
