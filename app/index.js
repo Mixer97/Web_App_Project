@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./db/connect");
+const cors = require("cors");
 
 const { userWhoAmI } = require("./controllers/auth.controller");
 const { verifyToken } = require("./middleware/auth");
@@ -15,17 +16,28 @@ const userRoutes = require("./routes/user.route");
 
 const app = express();
 
+
+/*
+app.use(cors({
+  origin:["http://localhost:5001"],
+  methods:["GET", "POST"],
+  credentials: true
+}))
+*/
+
 // middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static("public"));
 
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/fields", fieldRoutes);
 app.use("/api/tournaments", tournamentRoutes);
 app.use("/api/matches", matchRoutes);
-app.user("/api/users", userRoutes);
+app.use("/api/users", userRoutes);
 
 // base test
 app.get("/", (req, res) => {
