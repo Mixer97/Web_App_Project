@@ -1,5 +1,6 @@
 import { Component } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import "../Styles/NavBar.css";
 
 class NavBar extends Component {
   constructor(props) {
@@ -27,11 +28,11 @@ class NavBar extends Component {
 
     return (
       <div
-        className="col-3 bg-dark text-white vh-100 p-4 d-flex flex-column"
+        className="col-3 bg-dark text-white sticky-top vh-100 p-4 d-flex flex-column my-custom-sidebar"
         style={sidebarStyle}
       >
         <div className="mb-4 d-flex flex-column align-items-center gap-4 w-100">
-          Sports app
+          <h2 className="card-title sports-title-scoreboard">Look&Book</h2>
         </div>
         <div className="d-flex flex-column gap-3">
           {/* HORIZONTAL SEARCH FORM */}
@@ -66,34 +67,46 @@ class NavBar extends Component {
             type="submit"
             className="btn btn-secondary "
           >
-            home
+            <i className="bi bi-house-door"></i>
+            <span> Home</span>
           </button>
           <button
             onClick={() => this.QSetViewInParent({ page: "userView" })}
             type="submit"
             className="btn btn-secondary"
           >
-            User
+            <i className="bi bi-person"></i>
+            <span> User</span>
           </button>
           <button
             onClick={() => this.QSetViewInParent({ page: "tournamentView" })}
             type="submit"
             className="btn btn-secondary"
           >
-            Tournaments
+            <i className="bi bi-trophy"></i>
+            <span> Tournaments</span>
           </button>
           <button
             onClick={() => this.QSetViewInParent({ page: "fieldView" })}
             type="submit"
             className="btn btn-secondary"
           >
-            Fields
+            <i className="bi bi-geo-alt"></i>
+            <span> Fields</span>
+          </button>
+          <button
+            onClick={() => this.QSetViewInParent({ page: "fieldView" })}
+            type="submit"
+            className="btn btn-secondary"
+          >
+            <i className="bi bi-pen"></i>
+            <span> Your Bookings</span>
           </button>
         </div>
 
         {/* ACCOUNT STATUS FOOTER */}
         <div className="mt-auto pt-4 border-top border-secondary w-100">
-          <div className="d-flex align-items-center gap-2">
+          <div className="d-flex align-items-center justify-content-center gap-2">
             <span
               className={`p-1 ${statusBadgeColor} rounded-circle d-inline-block`}
               style={{ width: "25px", height: "25px" }}

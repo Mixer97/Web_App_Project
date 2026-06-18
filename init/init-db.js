@@ -93,31 +93,31 @@ db.bookings.insertMany([
   {
     fieldId: fieldFootball1._id.toString(),
     userId: mario._id.toString(),
-    date: "2026-06-03",
+    date: "2026-06-20",
     slot: "09:00"
   },
   {
     fieldId: fieldFootball1._id.toString(),
     userId: luigi._id.toString(),
-    date: "2026-06-03",
+    date: "2026-06-22",
     slot: "11:00"
   },
   {
     fieldId: fieldBasket1._id.toString(),
     userId: anna._id.toString(),
-    date: "2026-06-04",
+    date: "2026-06-25",
     slot: "14:30"
   },
   {
     fieldId: fieldVolley1._id.toString(),
     userId: mario._id.toString(),
-    date: "2026-06-05",
+    date: "2026-06-30",
     slot: "16:00"
   },
   {
     fieldId: fieldBasket1._id.toString(),
     userId: luigi._id.toString(),
-    date: "2026-06-06",
+    date: "2026-06-30",
     slot: "09:30"
   }
 ]);
@@ -130,7 +130,7 @@ db.tournaments.insertMany([
     name: "Summer Football Cup",
     sport: "football",
     maxTeams: 8,
-    startDate: "2026-06-20",
+    startDate: "2026-06-17",
     creatorId: mario._id.toString(),
     status: "active",
   },
@@ -138,7 +138,7 @@ db.tournaments.insertMany([
     name: "City Volleyball Trophy",
     sport: "volleyball",
     maxTeams: 6,
-    startDate: "2026-07-05",
+    startDate: "2026-07-06",
     creatorId: luigi._id.toString(),
     status: "completed",
   },
