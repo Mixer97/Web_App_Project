@@ -19,7 +19,11 @@ class NavBar extends Component {
   };
 
   render() {
-    const { userStatus, statusBadgeColor } = this.state.status;
+
+    const username = this.props.currentUser;
+
+    const userStatus = username ? username : "Not Registered";
+    const statusBadgeColor = username ? "bg-success" : "bg-secondary";
 
     const sidebarStyle = {
       overflowX: "hidden",
@@ -94,32 +98,26 @@ class NavBar extends Component {
             <i className="bi bi-geo-alt"></i>
             <span> Fields</span>
           </button>
-          <button
-            onClick={() => this.QSetViewInParent({ page: "fieldView" })}
-            type="submit"
-            className="btn btn-secondary"
-          >
-            <i className="bi bi-pen"></i>
-            <span> Your Bookings</span>
-          </button>
         </div>
 
         {/* ACCOUNT STATUS FOOTER */}
         <div className="mt-auto pt-4 border-top border-secondary w-100">
           <div className="d-flex align-items-center justify-content-center gap-2">
+            {/* The dot class variable is now injected seamlessly here */}
             <span
               className={`p-1 ${statusBadgeColor} rounded-circle d-inline-block`}
               style={{ width: "25px", height: "25px" }}
             ></span>
 
             <div className="d-flex flex-column">
-              <span className=" small" style={{ fontSize: "0.75rem" }}>
+              <span className="small" style={{ fontSize: "0.75rem" }}>
                 Account Status:
               </span>
               <span
                 className="fw-semibold text-truncate"
                 style={{ maxWidth: "150px" }}
               >
+                {/* The string username or fallback is displayed here */}
                 {userStatus}
               </span>
             </div>

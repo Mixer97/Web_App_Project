@@ -6,24 +6,27 @@ import UserView from "./CustomComponents/UserView";
 import FieldView from "./CustomComponents/FieldView";
 import TournamentView from "./CustomComponents/TournamentView";
 import AvailabilityView from "./CustomComponents/AvailabilityView";
+import RegisterView from "./CustomComponents/RegisterView";
 
 class App extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      currentPage: "home",
+      currentPage: "",
       fieldID: "",
       date: "",
       bookedSlots: [],
+      loggedInUser: null,
     };
   }
 
   QSetView = (obj) => {
     this.setState({
-      currentPage: obj.page || "",
-      fieldID: obj.id || "",
-      date: obj.date || "",
-      bookedSlots: obj.bookedSlots || [],
+      currentPage: obj.page || this.state.currentPage,
+      fieldID: obj.id || this.state.fieldID,
+      date: obj.date || this.state.date,
+      bookedSlots: obj.bookedSlots || this.state.bookedSlots,
+      loggedInUser: obj.loggedInUser || this.state.loggedInUser,
     });
   };
 
@@ -31,13 +34,22 @@ class App extends Component<any, any> {
     let page = state.currentPage;
     switch (page) {
       case "loginView":
-        return <LoginView QUserFromChild={this.QHadlerUserLog} />;
+        return <LoginView QLoginDataFromChild={this.QHandlerUserLogin} />;
       case "userView":
         return <UserView QViewFromChild={this.QSetView} />;
       case "fieldView":
-        return <FieldView QViewFromChild={this.QSetView} QHandlerFieldBookingFromChild={this.QSetView}/>;
+        return (
+          <FieldView
+            QViewFromChild={this.QSetView}
+            QHandlerFieldBookingFromChild={this.QSetView}
+          />
+        );
       case "tournamentView":
         return <TournamentView QViewFromChild={this.QSetView} />;
+      case "registerView":
+        return <RegisterView QRegistrationDataFromChild={this.QHandlerUserRegister} />;
+      case "userView":
+        return <UserView QViewFromChild={this.QSetView} />;
       case "availabilityView":
         return (
           <AvailabilityView
@@ -48,12 +60,16 @@ class App extends Component<any, any> {
           />
         );
       default:
-        return <HomeView />;
+        return <HomeView QViewFromChild={this.QSetView} />;
     }
   };
 
-  QHadlerUserLog = (obj) => {
-    this.QSetView({ page: "home" });
+  QHandlerUserLogin = (obj) => {
+    this.QSetView({ page: "home", loggedInUser: obj.username });
+  };
+
+  QHandlerUserRegister = (obj) => {
+    this.QSetView({ page: "home" , loggedInUser: obj.username });
   };
 
   QHandlerFieldBookingFromChild = (obj) => {
@@ -74,9 +90,9 @@ class App extends Component<any, any> {
         style={{ minWidth: "800px" }}
       >
         <div className="row g-0 flex-nowrap">
-          <NavBar QViewFromChild={this.QSetView} />
+          <NavBar QViewFromChild={this.QSetView} currentUser={this.state.loggedInUser} />
           <div id="viewer" className="col bg-light p-4">
-            <p>{this.QGetView(this.state)}</p>
+            <div>{this.QGetView(this.state)}</div>
           </div>
         </div>
       </div>

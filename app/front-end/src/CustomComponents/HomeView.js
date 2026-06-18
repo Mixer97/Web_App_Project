@@ -1,6 +1,12 @@
 import { Component } from "react";
 
 class HomeView extends Component {
+  QSetViewInParent = (obj) => {
+    this.props.QViewFromChild(obj);
+  };
+
+  QGetUserInfoFromDB
+
   render() {
     return (
       <div className="row row-cols-1 row-cols-md-3 g-4">
@@ -8,7 +14,27 @@ class HomeView extends Component {
           <div className="card">
             <div className="card-body">
               <h2 className="card-title">Home page</h2>
-              <p className="card-text">home page content</p>
+              <button
+                onClick={() => this.QSetViewInParent({ page: "loginView" })}
+                type="login"
+                className="btn btn-primary ms-2"
+              >
+                LOGIN
+              </button>
+              <button
+                onClick={() => this.QSetViewInParent({ page: "registerView" })}
+                type="login"
+                className="btn btn-primary ms-2"
+              >
+                REGISTER
+              </button>
+              <button
+                onClick={() => this.QSetViewInParent({ page: "" })}
+                type="login"
+                className="btn btn-primary ms-2"
+              >
+                WHO AM I
+              </button>
             </div>
           </div>
         </div>
