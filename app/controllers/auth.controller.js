@@ -19,14 +19,10 @@ const userSignup = async (req, res) => {
       }
     }
 
-    const lastUser = await User.findOne().sort({ id: -1 });
-    let id = lastUser?.id !== undefined ? lastUser.id : -1;
-    id++;
-
     const hashed = await bcrypt.hash(password, 10);
-    const newUser = { id, username, password: hashed, name, surname, email }; // Added id property mapping
+    const newUser = { username, password: hashed, name, surname, email };
 
-    await User.create(newUser);
+    const createdUser = await User.create(newUser);
     return res.status(201).json({ msg: "User created successfully" });
   } catch (error) {
     console.error(error);

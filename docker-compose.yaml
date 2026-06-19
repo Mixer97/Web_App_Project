@@ -8,6 +8,7 @@ services:
      - "5000:5000" 
    volumes: 
      - ./app:/usr/src/app 
+     - /usr/src/app/node_modules
    links: 
      - "mongo:mongosrv" 
  mongo: 

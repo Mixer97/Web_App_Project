@@ -5,11 +5,11 @@ class HomeView extends Component {
     this.props.QViewFromChild(obj);
   };
 
-  QGetUserInfoFromDB
+  QGetUserInfoFromDb;
 
   render() {
     return (
-      <div className="row row-cols-1 row-cols-md-3 g-4">
+      <div className="row row-cols-1 row-cols-md-2 g-4">
         <div className="col">
           <div className="card">
             <div className="card-body">
@@ -23,14 +23,14 @@ class HomeView extends Component {
               </button>
               <button
                 onClick={() => this.QSetViewInParent({ page: "registerView" })}
-                type="login"
+                type="register"
                 className="btn btn-primary ms-2"
               >
                 REGISTER
               </button>
               <button
-                onClick={() => this.QSetViewInParent({ page: "" })}
-                type="login"
+                onClick={() => this.QSetViewInParent({ page: "whoAmIView" })}
+                type="info"
                 className="btn btn-primary ms-2"
               >
                 WHO AM I

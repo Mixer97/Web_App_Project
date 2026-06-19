@@ -1,4 +1,5 @@
 import { Component } from "react";
+import axios from "axios";
 import HomeView from "./CustomComponents/HomeView";
 import LoginView from "./CustomComponents/LoginView";
 import NavBar from "./CustomComponents/NavBar";
@@ -7,6 +8,7 @@ import FieldView from "./CustomComponents/FieldView";
 import TournamentView from "./CustomComponents/TournamentView";
 import AvailabilityView from "./CustomComponents/AvailabilityView";
 import RegisterView from "./CustomComponents/RegisterView";
+import WhoAmIView from "./CustomComponents/WhoAmIView";
 
 class App extends Component<any, any> {
   constructor(props: any) {
@@ -17,6 +19,7 @@ class App extends Component<any, any> {
       date: "",
       bookedSlots: [],
       loggedInUser: null,
+      loggedInUserId: null,
     };
   }
 
@@ -27,6 +30,7 @@ class App extends Component<any, any> {
       date: obj.date || this.state.date,
       bookedSlots: obj.bookedSlots || this.state.bookedSlots,
       loggedInUser: obj.loggedInUser || this.state.loggedInUser,
+      loggedInUserId: obj.loggedInUserId || this.state.loggedInUserId,
     });
   };
 
@@ -34,7 +38,12 @@ class App extends Component<any, any> {
     let page = state.currentPage;
     switch (page) {
       case "loginView":
-        return <LoginView QLoginDataFromChild={this.QHandlerUserLogin} />;
+        return (
+          <LoginView
+            QLoginDataFromChild={this.QHandlerUserLogin}
+            QViewFromChild={this.QSetView}
+          />
+        );
       case "userView":
         return <UserView QViewFromChild={this.QSetView} />;
       case "fieldView":
@@ -47,7 +56,14 @@ class App extends Component<any, any> {
       case "tournamentView":
         return <TournamentView QViewFromChild={this.QSetView} />;
       case "registerView":
-        return <RegisterView QRegistrationDataFromChild={this.QHandlerUserRegister} />;
+        return (
+          <RegisterView
+            QRegistrationDataFromChild={this.QHandlerUserRegister}
+            QViewFromChild={this.QSetView}
+          />
+        );
+      case "whoAmIView":
+        return <WhoAmIView QViewFromChild={this.QSetView} />;
       case "userView":
         return <UserView QViewFromChild={this.QSetView} />;
       case "availabilityView":
@@ -65,11 +81,12 @@ class App extends Component<any, any> {
   };
 
   QHandlerUserLogin = (obj) => {
-    this.QSetView({ page: "home", loggedInUser: obj.username });
+    this.fetchIdLoggedInUser();
+    this.QSetView({ page: "homeView", loggedInUser: obj.username });
   };
 
   QHandlerUserRegister = (obj) => {
-    this.QSetView({ page: "home" , loggedInUser: obj.username });
+    this.QSetView({ page: "homeView", loggedInUser: obj.username });
   };
 
   QHandlerFieldBookingFromChild = (obj) => {
@@ -81,6 +98,16 @@ class App extends Component<any, any> {
     });
   };
 
+  fetchIdLoggedInUser = () => {
+    const url = `http://localhost:5000/api/whoami`;
+    axios
+      .get(url, {
+        withCredentials: true
+      })
+      .then((res) => this.setState({ loggedInUserId: res.data._id }))
+      .catch((err) => console.log("Error: " + err.message));
+  };
+
   render() {
     console.log(this.state);
     return (
@@ -90,7 +117,10 @@ class App extends Component<any, any> {
         style={{ minWidth: "800px" }}
       >
         <div className="row g-0 flex-nowrap">
-          <NavBar QViewFromChild={this.QSetView} currentUser={this.state.loggedInUser} />
+          <NavBar
+            QViewFromChild={this.QSetView}
+            currentUser={this.state.loggedInUser}
+          />
           <div id="viewer" className="col bg-light p-4">
             <div>{this.QGetView(this.state)}</div>
           </div>

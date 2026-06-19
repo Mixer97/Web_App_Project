@@ -19,7 +19,6 @@ class NavBar extends Component {
   };
 
   render() {
-
     const username = this.props.currentUser;
 
     const userStatus = username ? username : "Not Registered";
@@ -101,23 +100,27 @@ class NavBar extends Component {
         </div>
 
         {/* ACCOUNT STATUS FOOTER */}
-        <div className="mt-auto pt-4 border-top border-secondary w-100">
-          <div className="d-flex align-items-center justify-content-center gap-2">
-            {/* The dot class variable is now injected seamlessly here */}
-            <span
-              className={`p-1 ${statusBadgeColor} rounded-circle d-inline-block`}
-              style={{ width: "25px", height: "25px" }}
-            ></span>
-
-            <div className="d-flex flex-column">
-              <span className="small" style={{ fontSize: "0.75rem" }}>
-                Account Status:
-              </span>
+        <div className="mt-auto pt-4 border-top border-secondary w-100 px-2">
+          <div
+            className={`card border-0 shadow-sm transition-all text-center p-3 ${
+              username
+                ? "bg-success bg-opacity-25 text-success-light border-start border-success border-4"
+                : "bg-secondary bg-opacity-10 text-muted"
+            }`}
+          >
+            <div className="d-flex flex-column align-items-center">
               <span
-                className="fw-semibold text-truncate"
-                style={{ maxWidth: "150px" }}
+                className="text-uppercase text-white-50 tracking-wider fw-bold mb-1"
+                style={{ fontSize: "0.65rem", letterSpacing: "0.05rem" }}
               >
-                {/* The string username or fallback is displayed here */}
+                Account User
+              </span>
+
+              <span
+                className={`fw-bold text-truncate w-100 ${username ? "text-success" : "text-white-50"}`}
+                style={{ fontSize: "1rem", maxWidth: "160px" }}
+                title={userStatus}
+              >
                 {userStatus}
               </span>
             </div>

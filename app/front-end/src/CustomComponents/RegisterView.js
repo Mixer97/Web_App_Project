@@ -18,12 +18,22 @@ class RegisterView extends Component {
     }));
   };
 
+  QSetViewInParent = (obj) => {
+    this.props.QViewFromChild(obj);
+  };
+
   QcheckUserWithDB = () => {
     axios
-      .post("http://localhost:5000/api/auth/signin", {
-        username: this.state.user.username,
-        password: this.state.user.password,
-      })
+      .post(
+        "http://localhost:5000/api/auth/signin",
+        {
+          username: this.state.user.username,
+          password: this.state.user.password,
+        },
+        {
+          withCredentials: true,
+        },
+      )
       .then((res) => {
         console.log(this.state);
       })
@@ -74,87 +84,130 @@ class RegisterView extends Component {
 
   render() {
     return (
-      <div id="menu" className="row">
-        <form onSubmit={(e) => this.QSaveUserToDB(e)}>
-          {this.state.error && (
-            <div
-              className="alert alert-danger d-flex align-items-center"
-              role="alert"
-            >
-              <i className="bi bi-exclamation-triangle-fill me-2"></i>
-              <div>{this.state.error}</div>
+      /* 🚀 Centered Container (Takes up the available space nicely) */
+      <div
+        className="d-flex justify-content-center align-items-center w-100 p-3"
+        style={{ minHeight: "75vh" }}
+      >
+        {/* Registration Form Card Wrapper */}
+        <div className="card shadow p-4 w-100" style={{ maxWidth: "500px" }}>
+          {/* 🚀 FORM TITLE */}
+          <h2 className="text-center mb-4 fw-bold text-primary">
+            Register Portal
+          </h2>
+
+          <form onSubmit={(e) => this.QSaveUserToDB(e)}>
+            {this.state.error && (
+              <div
+                className="alert alert-danger d-flex align-items-center"
+                role="alert"
+              >
+                <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>{this.state.error}</div>
+              </div>
+            )}
+
+            <div className="mb-3">
+              <label
+                htmlFor="exampleInputUsername1"
+                className="form-label fw-medium"
+              >
+                Username
+              </label>
+              <input
+                onChange={(e) => this.QGetTextFromField(e)}
+                name="username"
+                type="text"
+                className="form-control"
+                id="exampleInputUsername1"
+                required
+              />
             </div>
-          )}
 
-          <div className="mb-3">
-            <label htmlFor="exampleInputUsername1" className="form-label">
-              Username
-            </label>
-            <input
-              onChange={(e) => this.QGetTextFromField(e)}
-              name="username"
-              type="text"
-              className="form-control"
-              required
-            />
-          </div>
+            <div className="mb-3">
+              <label
+                htmlFor="exampleInputPassword1"
+                className="form-label fw-medium"
+              >
+                Password
+              </label>
+              <input
+                onChange={(e) => this.QGetTextFromField(e)}
+                name="password"
+                type="password"
+                className="form-control"
+                id="exampleInputPassword1"
+                required
+              />
+            </div>
 
-          <div className="mb-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
-              Password
-            </label>
-            <input
-              onChange={(e) => this.QGetTextFromField(e)}
-              name="password"
-              type="password"
-              className="form-control"
-              required
-            />
-          </div>
+            <div className="mb-3">
+              <label
+                htmlFor="exampleInputName1"
+                className="form-label fw-medium"
+              >
+                Name
+              </label>
+              <input
+                onChange={(e) => this.QGetTextFromField(e)}
+                name="name"
+                type="text"
+                className="form-control"
+                id="exampleInputName1"
+                required
+              />
+            </div>
 
-          <div className="mb-3">
-            <label htmlFor="exampleInputName1" className="form-label">
-              Name
-            </label>
-            <input
-              onChange={(e) => this.QGetTextFromField(e)}
-              name="name"
-              type="text"
-              className="form-control"
-              required
-            />
-          </div>
+            <div className="mb-3">
+              <label
+                htmlFor="exampleInputSurname1"
+                className="form-label fw-medium"
+              >
+                Surname
+              </label>
+              <input
+                onChange={(e) => this.QGetTextFromField(e)}
+                name="surname"
+                type="text"
+                className="form-control"
+                id="exampleInputSurname1"
+                required
+              />
+            </div>
 
-          <div className="mb-3">
-            <label htmlFor="exampleInputSurname1" className="form-label">
-              Surname
-            </label>
-            <input
-              onChange={(e) => this.QGetTextFromField(e)}
-              name="surname"
-              type="text"
-              className="form-control"
-              required
-            />
-          </div>
+            <div className="mb-4">
+              <label
+                htmlFor="exampleInputEmail1"
+                className="form-label fw-medium"
+              >
+                Email address
+              </label>
+              <input
+                onChange={(e) => this.QGetTextFromField(e)}
+                name="email"
+                type="email"
+                className="form-control"
+                id="exampleInputEmail1"
+                required
+              />
+            </div>
 
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail1" className="form-label">
-              Email address
-            </label>
-            <input
-              onChange={(e) => this.QGetTextFromField(e)}
-              name="email"
-              type="email"
-              className="form-control"
-              required
-            />
-          </div>
+            {/* 🚀 BUTTON CONTAINER (Arranged side-by-side cleanly) */}
+            <div className="d-flex gap-2 justify-content-between">
+              <button type="submit" className="btn btn-primary flex-grow-1">
+                <i className="bi bi-person-plus me-1"></i> Submit
+              </button>
 
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
-        </form>
+              <button
+                type="button" /* 🚀 FIXED: Changed from submit to button to prevent form submission issues */
+                className="btn btn-outline-secondary flex-grow-1"
+                onClick={() => this.QSetViewInParent({ page: "loginView" })}
+              >
+                <i className="bi bi-box-arrow-in-right me-1"></i> Existing User
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }
