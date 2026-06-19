@@ -33,7 +33,7 @@ class HomeView extends Component {
                   type="button"
                   className="btn btn-primary ms-2"
                 >
-                  WHO AM I
+                  USER INFO
                 </button>
               )}
             </div>

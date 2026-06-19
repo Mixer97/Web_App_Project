@@ -43,60 +43,74 @@ class FieldCard extends Component {
 
     return (
       <div className="col">
-        <div className="card h-100 shadow-sm">
-          <div className="card-body d-flex flex-column">
-            <h2 className="card-title fs-4 fw-bold">{field.name}</h2>
-            <p className="card-text text-muted small">{field.address}</p>
+        <div className="card h-100 shadow-sm border-0 bg-light p-2">
+          <div className="card-body d-flex flex-column justify-content-between p-3">
+            <div>
+              <div className="d-flex justify-content-between align-items-start mb-2">
+                <h4 className="fw-bold text-dark m-0">{field.name}</h4>
+                <span className="badge bg-primary bg-opacity-10 text-primary px-2 py-1 small fw-bold">
+                  {field.sport}
+                </span>
+              </div>
+              <p className="text-muted small mb-3">
+                <i className="bi bi-geo-alt me-1"></i> {field.address}
+              </p>
 
-            <div className="mb-3">
-              <label className="form-label text-muted small fw-bold d-block">
-                Slots for {date}:
-              </label>
-              <div className="d-flex flex-wrap gap-2">
-                {loading ? (
-                  <span className="text-muted small">Checking slots...</span>
-                ) : field.slots && field.slots.length > 0 ? (
-                  field.slots.map((s, index) => {
-                    const isBooked = !bookedSlots.includes(s);
+              <div className="mb-4">
+                <span
+                  className="text-muted text-uppercase fw-bold d-block mb-2"
+                  style={{ fontSize: "0.65rem", letterSpacing: "0.05rem" }}
+                >
+                  Schedule Matrix for {date}
+                </span>
 
-                    return (
-                      <span
-                        className={`badge px-2 py-1.5 border ${
-                          isBooked
-                            ? "bg-light text-muted border-secondary-subtle"
-                            : "bg-light text-success border-success"
-                        }`}
-                        key={index}
-                        style={{
-                          minWidth: "65px",
-                          textAlign: "center",
-                          opacity: isBooked ? 0.5 : 1,
-                        }}
-                        title={isBooked ? "Booked (Unavailable)" : "Available"}
-                      >
-                        {s}
-                      </span>
-                    );
-                  })
-                ) : (
-                  <span className="text-muted small">
-                    No operating hours defined.
-                  </span>
-                )}
+                <div className="d-flex flex-wrap gap-2">
+                  {loading ? (
+                    <div className="text-muted placeholder-glow small py-1">
+                      <span className="placeholder col-6"></span>
+                    </div>
+                  ) : field.slots && field.slots.length > 0 ? (
+                    field.slots.map((s, index) => {
+                      const isBooked = !bookedSlots.includes(s);
+
+                      return (
+                        <span
+                          className={`badge rounded px-2 py-2 border transition-all text-center ${
+                            isBooked
+                              ? "bg-secondary bg-opacity-10 text-muted border-secondary border-opacity-25 opacity-50"
+                              : "bg-success bg-opacity-10 text-success border-success border-opacity-50 fw-bold"
+                          }`}
+                          key={index}
+                          style={{ minWidth: "70px", fontSize: "0.75rem" }}
+                          title={
+                            isBooked ? "Booked (Unavailable)" : "Available"
+                          }
+                        >
+                          <i
+                            className={`bi ${isBooked ? "bi-lock-fill" : "bi-unlock-fill"} me-1`}
+                          ></i>
+                          {s}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="text-muted small py-1">
+                      <i className="bi bi-exclamation-circle me-1"></i> No
+                      operating hours defined.
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="mt-auto d-flex align-items-center justify-content-between">
-              <span className="badge bg-secondary px-3 py-2">
-                {field.sport}
-              </span>
+            <div className="pt-2 border-top border-secondary border-opacity-10 mt-auto">
               <button
                 type="button"
-                className="btn btn-sm btn-outline-primary"
+                className="btn btn-primary w-100 fw-medium d-flex align-items-center justify-content-center"
                 onClick={() => onSelect(bookedSlots)}
               >
-                Book a slot
-                <i className="bi bi-arrow-right ms-1"></i>
+                <span>Book a slot</span>
+                <i className="bi bi-arrow-right ms-2"></i>
               </button>
             </div>
           </div>
@@ -156,59 +170,88 @@ class FieldView extends Component {
   render() {
     let data = this.state.fields;
     return (
-      <div className="row g-2">
-        <div className="row align-items-center g-3">
-          <div className="col-3">
-            <div className="input-group">
-              <span className="input-group-text bg-light border text-muted">
-                <i className="bi bi-calendar-event"></i>
-              </span>
-              <input
-                type="date"
-                className="form-control"
-                min={new Date().toISOString().split("T")[0]}
-                value={this.state.selectedDate}
-                onChange={(e) =>
-                  this.setState({ selectedDate: e.target.value })
-                }
-              />
+      <div className="container-fluid p-3 pt-2 mt-2">
+        <div className="card shadow border-0 p-4 mb-4">
+          <div className="d-flex align-items-center mb-3">
+            <div
+              className="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3 d-inline-flex align-items-center justify-content-center"
+              style={{ width: "42px", height: "42px" }}
+            >
+              <i className="bi bi-sliders fs-5"></i>
+            </div>
+            <div>
+              <h3 className="fw-bold text-dark m-0">
+                Field Search & Logistics
+              </h3>
+              <p className="text-muted small m-0">
+                Filter active field availability matrices in real-time
+              </p>
             </div>
           </div>
 
-          <div className="col-3">
-            <select
-              className="form-select"
-              value={this.state.selectedSport}
-              onChange={(e) => this.QhandleSportChange(e)}
-            >
-              <option value="">All Sports (No Filter)</option>
-              <option value="Football">Football</option>
-              <option value="Basketball">Basketball</option>
-              <option value="Volleyball">Volleyball</option>
-            </select>
-          </div>
+          <hr className="text-muted opacity-25 mb-4" />
 
-          <div className="col-6">
-            <form onSubmit={this.QhandleTextSearchSubmit}>
-              <div className="d-flex align-items-center">
+          <div className="row align-items-center g-3">
+            <div className="col-md-3">
+              <div className="input-group shadow-sm rounded">
+                <span className="input-group-text bg-light border-end-0 text-muted">
+                  <i className="bi bi-calendar-event"></i>
+                </span>
                 <input
-                  type="search"
-                  className="form-control flex-grow-1"
-                  value={this.state.searchQuery}
-                  placeholder="Find..."
+                  type="date"
+                  className="form-control bg-light border-start-0 ps-1"
+                  min={new Date().toISOString().split("T")[0]}
+                  value={this.state.selectedDate}
                   onChange={(e) =>
-                    this.setState({ searchQuery: e.target.value })
+                    this.setState({ selectedDate: e.target.value })
                   }
                 />
-                <button type="submit" className="btn btn-primary ms-2">
-                  <i className="bi bi-search"></i>
-                </button>
               </div>
-            </form>
+            </div>
+            <div className="col-md-3">
+              <div className="input-group shadow-sm rounded">
+                <span className="input-group-text bg-light border-end-0 text-muted">
+                  <i className="bi bi-funnel"></i>
+                </span>
+                <select
+                  className="form-select bg-light border-start-0 ps-1"
+                  value={this.state.selectedSport}
+                  onChange={(e) => this.QhandleSportChange(e)}
+                >
+                  <option value="">All Sports (No Filter)</option>
+                  <option value="Football">Football</option>
+                  <option value="Basketball">Basketball</option>
+                  <option value="Volleyball">Volleyball</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <form onSubmit={this.QhandleTextSearchSubmit}>
+                <div className="d-flex align-items-center shadow-sm rounded bg-light border px-2">
+                  <i className="bi bi-search text-muted me-2"></i>
+                  <input
+                    type="search"
+                    className="form-control border-0 bg-transparent flex-grow-1 shadow-none"
+                    value={this.state.searchQuery}
+                    placeholder="Search by facility name, court designation..."
+                    onChange={(e) =>
+                      this.setState({ searchQuery: e.target.value })
+                    }
+                  />
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-sm px-3 my-1 ms-2"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
 
-        <div className="row row-cols-1 row-cols-md-2 g-3 mt-2">
+        <div className="row row-cols-1 row-cols-md-2 g-4">
           {data.length > 0 ? (
             data.map((d) => (
               <FieldCard
@@ -226,8 +269,14 @@ class FieldView extends Component {
               />
             ))
           ) : (
-            <div className="col-12 text-center p-5 text-muted">
-              Loading fields...
+            <div className="col-12 text-center p-5 border rounded bg-light shadow-sm text-muted">
+              <div
+                className="spinner-border text-primary spinner-border-sm me-2"
+                role="status"
+              ></div>
+              <span>
+                No sports complexes matched your active criteria rules...
+              </span>
             </div>
           )}
         </div>
