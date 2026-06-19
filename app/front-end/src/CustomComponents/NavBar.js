@@ -41,7 +41,7 @@ class NavBar extends Component {
           {/* HORIZONTAL SEARCH FORM */}
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="mb-3">
-              {/* Changed 'for' to 'htmlFor' for React conformity */}
+
               <label
                 htmlFor="sidebarSearch"
                 className="form-label small text-muted"
@@ -49,7 +49,7 @@ class NavBar extends Component {
                 Search
               </label>
 
-              {/* Flex wrapper container forces input and button side-by-side */}
+
               <div className="d-flex align-items-center">
                 <input
                   type="search"
@@ -113,7 +113,7 @@ class NavBar extends Component {
                 className="text-uppercase text-white-50 tracking-wider fw-bold mb-1"
                 style={{ fontSize: "0.65rem", letterSpacing: "0.05rem" }}
               >
-                Account User
+                Account Username
               </span>
 
               <span

@@ -34,7 +34,7 @@ class LoginView extends Component {
           password: this.state.user.password,
         },
         {
-          withCredentials: true
+          withCredentials: true,
         },
       )
       .then((res) => {
@@ -111,7 +111,7 @@ class LoginView extends Component {
               />
             </div>
 
-            <div className="d-flex gap-2 justify-content-between">
+            <div className="d-flex gap-2 justify-content-between pb-4">
               <button type="submit" className="btn btn-primary flex-grow-1">
                 <i className="bi bi-box-arrow-in-right me-1"></i> Submit
               </button>
@@ -124,6 +124,13 @@ class LoginView extends Component {
                 <i className="bi bi-person-plus me-1"></i> Register
               </button>
             </div>
+            <button
+              type="button"
+              className="btn btn-secondary text-decoration-none text-light w-100 text-center p-3"
+              onClick={() => this.QSetViewInParent({ page: "homeView" })}
+            >
+              <i className="bi bi-house-door me-1"></i> Cancel & Return Home
+            </button>
           </form>
         </div>
       </div>

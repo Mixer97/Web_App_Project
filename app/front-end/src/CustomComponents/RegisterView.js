@@ -84,14 +84,11 @@ class RegisterView extends Component {
 
   render() {
     return (
-      /* 🚀 Centered Container (Takes up the available space nicely) */
       <div
         className="d-flex justify-content-center align-items-center w-100 p-3"
         style={{ minHeight: "75vh" }}
       >
-        {/* Registration Form Card Wrapper */}
         <div className="card shadow p-4 w-100" style={{ maxWidth: "500px" }}>
-          {/* 🚀 FORM TITLE */}
           <h2 className="text-center mb-4 fw-bold text-primary">
             Register Portal
           </h2>
@@ -192,20 +189,26 @@ class RegisterView extends Component {
               />
             </div>
 
-            {/* 🚀 BUTTON CONTAINER (Arranged side-by-side cleanly) */}
-            <div className="d-flex gap-2 justify-content-between">
+            <div className="d-flex gap-2 justify-content-between pb-4">
               <button type="submit" className="btn btn-primary flex-grow-1">
                 <i className="bi bi-person-plus me-1"></i> Submit
               </button>
 
               <button
-                type="button" /* 🚀 FIXED: Changed from submit to button to prevent form submission issues */
+                type="button"
                 className="btn btn-outline-secondary flex-grow-1"
                 onClick={() => this.QSetViewInParent({ page: "loginView" })}
               >
                 <i className="bi bi-box-arrow-in-right me-1"></i> Existing User
               </button>
             </div>
+            <button
+              type="button"
+              className="btn btn-secondary text-decoration-none text-light w-100 text-center p-3"
+              onClick={() => this.QSetViewInParent({ page: "homeView" })}
+            >
+              <i className="bi bi-house-door me-1"></i> Cancel & Return Home
+            </button>
           </form>
         </div>
       </div>

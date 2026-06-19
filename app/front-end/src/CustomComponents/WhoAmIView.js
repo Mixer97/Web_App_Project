@@ -12,6 +12,10 @@ class WhoAmIView extends Component {
     };
   }
 
+  QSetViewInParent = (obj) => {
+    this.props.QViewFromChild(obj);
+  };
+
   componentDidMount() {
     this.fetchIdLoggedInUser();
   }
@@ -53,7 +57,7 @@ class WhoAmIView extends Component {
 
           <hr className="text-muted opacity-25 mb-4" />
 
-          <div className="row g-3">
+          <div className="row g-3 pb-4">
             <div className="col-12">
               <div className="bg-light p-3 rounded border-start border-primary border-4 shadow-sm">
                 <span
@@ -118,6 +122,13 @@ class WhoAmIView extends Component {
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            className="btn btn-secondary text-decoration-none text-light w-100 text-center p-3"
+            onClick={() => this.QSetViewInParent({ page: "homeView" })}
+          >
+            <i className="bi bi-house-door me-1"></i>Return Home
+          </button>
         </div>
       </div>
     );

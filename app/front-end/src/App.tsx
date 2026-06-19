@@ -23,6 +23,23 @@ class App extends Component<any, any> {
     };
   }
 
+  componentDidMount() {
+    this.checkAuthStatus();
+  }
+
+  checkAuthStatus = () => {
+    axios
+      .get("http://localhost:5000/api/whoami", { withCredentials: true })
+      .then((res) => {
+        if (res.data && res.data.username) {
+          this.setState({ loggedInUser: res.data.username, loggedInUserId: res.data._id });
+        }
+      })
+      .catch(() => {
+        this.setState({ loggedInUser: null, loggedInUserId: null });
+      });
+  };
+
   QSetView = (obj) => {
     this.setState({
       currentPage: obj.page || this.state.currentPage,
@@ -76,7 +93,7 @@ class App extends Component<any, any> {
           />
         );
       default:
-        return <HomeView QViewFromChild={this.QSetView} />;
+        return <HomeView QViewFromChild={this.QSetView} currentUser={this.state.loggedInUser} />;
     }
   };
 
@@ -102,7 +119,7 @@ class App extends Component<any, any> {
     const url = `http://localhost:5000/api/whoami`;
     axios
       .get(url, {
-        withCredentials: true
+        withCredentials: true,
       })
       .then((res) => this.setState({ loggedInUserId: res.data._id }))
       .catch((err) => console.log("Error: " + err.message));
