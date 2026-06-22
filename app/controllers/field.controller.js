@@ -70,6 +70,20 @@ const getAvailableSlots = async (fieldId, date) => {
   return available;
 };
 
+const getFieldBooking = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(400).json({ msg: "User not registered yet" });
+    }
+
+    const bookings = await Booking.find({ userId: req.userId });
+
+    return res.json(bookings);
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal Error" });
+  }
+};
+
 const createFieldBooking = async (req, res) => {
   try {
     const { date, slot } = req.body;
@@ -122,6 +136,7 @@ module.exports = {
   fieldQuery,
   getFieldDetails,
   getFieldAvailability,
+  getFieldBooking,
   createFieldBooking,
   cancelFieldBooking,
 };

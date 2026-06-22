@@ -4,11 +4,14 @@ const {
   fieldQuery,
   getFieldDetails,
   getFieldAvailability,
+  getFieldBooking,
   createFieldBooking,
   cancelFieldBooking,
 } = require("../controllers/field.controller");
 
 const router = express.Router();
+
+router.get("/bookings/user", verifyToken, getFieldBooking);
 
 router.get("/", fieldQuery);
 router.get("/:id", getFieldDetails);
