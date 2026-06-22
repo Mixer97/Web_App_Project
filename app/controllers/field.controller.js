@@ -76,7 +76,12 @@ const getFieldBooking = async (req, res) => {
       return res.status(400).json({ msg: "User not registered yet" });
     }
 
-    const bookings = await Booking.find({ userId: req.userId });
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    const bookings = await Booking.find({
+      userId: req.userId,
+      date: { $gte: todayStr },
+    }).sort({ date: 1, slot: 1 });
 
     return res.json(bookings);
   } catch (error) {
@@ -89,7 +94,9 @@ const createFieldBooking = async (req, res) => {
     const { date, slot } = req.body;
     const slotsAvailable = await getAvailableSlots(req.params.id, date);
     if (!slotsAvailable.includes(slot)) {
-      return res.status(409).json({ msg: "Slot already booked or time slot malformed" });
+      return res
+        .status(409)
+        .json({ msg: "Slot already booked or time slot malformed" });
     } else {
       const booking = await Booking.create({
         fieldId: req.params.id,
