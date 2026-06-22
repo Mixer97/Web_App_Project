@@ -125,7 +125,7 @@ class AvailabilityView extends Component {
               className="btn btn-outline-secondary px-4"
               onClick={() => this.QSetViewInParent({ page: "fieldView" })}
             >
-              <i className="bi bi-arrow-left me-1"></i> Cancel
+              <i className="bi bi-arrow-left me-1"></i> Go Back
             </button>
             
             <button

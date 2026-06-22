@@ -20,6 +20,7 @@ class App extends Component<any, any> {
       bookedSlots: [],
       loggedInUser: null,
       loggedInUserId: null,
+      tournamentId: null,
     };
   }
 
@@ -32,7 +33,10 @@ class App extends Component<any, any> {
       .get("http://localhost:5000/api/whoami", { withCredentials: true })
       .then((res) => {
         if (res.data && res.data.username) {
-          this.setState({ loggedInUser: res.data.username, loggedInUserId: res.data._id });
+          this.setState({
+            loggedInUser: res.data.username,
+            loggedInUserId: res.data._id,
+          });
         }
       })
       .catch(() => {
@@ -71,13 +75,47 @@ class App extends Component<any, any> {
           />
         );
       case "tournamentView":
-        return <TournamentView QViewFromChild={this.QSetView} />;
+        return (
+          <TournamentView
+            QViewFromChild={this.QSetView}
+            QHandlerTournamentBookingFromChild={this.QSetView}
+          />
+        );
       case "registerView":
         return (
           <RegisterView
             QRegistrationDataFromChild={this.QHandlerUserRegister}
             QViewFromChild={this.QSetView}
           />
+        );
+      case "tournamentRegisterView":
+        return (
+          <div
+            className="card shadow border-0 p-4 mx-auto"
+            style={{ maxWidth: "600px" }}
+          >
+            <h4 className="fw-bold mb-2">Register Your Team</h4>
+            <p className="text-muted small">
+              Championship Tournament Reference ID:{" "}
+              <code>{this.state.tournamentID}</code>
+            </p>
+            <hr className="opacity-25" />
+            {/* You can swap this block out with a dedicated <TournamentRegisterFormView /> component later */}
+            <div className="d-flex gap-2 justify-content-end mt-4">
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => this.QSetView({ page: "tournamentView" })}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => alert("Registration saved!")}
+              >
+                Submit Entry
+              </button>
+            </div>
+          </div>
         );
       case "whoAmIView":
         return <WhoAmIView QViewFromChild={this.QSetView} />;
@@ -93,7 +131,12 @@ class App extends Component<any, any> {
           />
         );
       default:
-        return <HomeView QViewFromChild={this.QSetView} currentUser={this.state.loggedInUser} />;
+        return (
+          <HomeView
+            QViewFromChild={this.QSetView}
+            currentUser={this.state.loggedInUser}
+          />
+        );
     }
   };
 

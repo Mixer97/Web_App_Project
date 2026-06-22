@@ -7,6 +7,7 @@ class HomeView extends Component {
     this.state = {
       bookings: [],
       fieldNames: {},
+      fieldAddresses: {},
       loading: false,
       error: "",
     };
@@ -23,7 +24,7 @@ class HomeView extends Component {
       if (this.props.currentUser) {
         this.fetchUserBookings();
       } else {
-        this.setState({ bookings: [], fieldNames: {} });
+        this.setState({ bookings: [], fieldNames: {}, fieldAddresses: {} });
       }
     }
   }
@@ -46,30 +47,39 @@ class HomeView extends Component {
   };
 
   resolveFieldNames = () => {
-    const { bookings, fieldNames } = this.state;
+    const { bookings, fieldNames, fieldAddresses } = this.state;
     const updatedNames = { ...fieldNames };
+    const updatedAddresses = { ...fieldAddresses };
     const fetchPromises = [];
 
     bookings.forEach((booking) => {
       if (!booking.fieldId) return;
 
-      let id = typeof booking.fieldId === "object" ? booking.fieldId._id : booking.fieldId;
+      const id =
+        typeof booking.fieldId === "object"
+          ? booking.fieldId._id
+          : booking.fieldId;
 
-      if (typeof booking.fieldId === "object" && booking.fieldId.name) {
-        updatedNames[id] = booking.fieldId.name;
-        return;
+      if (typeof booking.fieldId === "object") {
+        if (booking.fieldId.name) updatedNames[id] = booking.fieldId.name;
+        if (booking.fieldId.address)
+          updatedAddresses[id] = booking.fieldId.address;
+        if (booking.fieldId.name && booking.fieldId.address) return;
       }
-      if (id && !updatedNames[id]) {
+
+      if (id && (!updatedNames[id] || !updatedAddresses[id])) {
         const promise = axios
           .get(`http://localhost:5000/api/fields/${id}`, {
             withCredentials: true,
           })
           .then((res) => {
             updatedNames[id] = res.data.name || "Unknown Field";
+            updatedAddresses[id] = res.data.address || "No Address Provided";
           })
           .catch((err) => {
             console.error(`Error fetching field ${id}:`, err.message);
             updatedNames[id] = "Unnamed Field Location";
+            updatedAddresses[id] = "Unknown Address";
           });
         fetchPromises.push(promise);
       }
@@ -77,10 +87,16 @@ class HomeView extends Component {
 
     if (fetchPromises.length > 0) {
       Promise.all(fetchPromises).then(() => {
-        this.setState({ fieldNames: updatedNames });
+        this.setState({
+          fieldNames: updatedNames,
+          fieldAddresses: updatedAddresses,
+        });
       });
     } else {
-      this.setState({ fieldNames: updatedNames });
+      this.setState({
+        fieldNames: updatedNames,
+        fieldAddresses: updatedAddresses,
+      });
     }
   };
 
@@ -121,9 +137,14 @@ class HomeView extends Component {
 
   getFieldName = (fieldProp) => {
     if (!fieldProp) return "Unspecified Field Location";
-    
     const id = typeof fieldProp === "object" ? fieldProp._id : fieldProp;
     return this.state.fieldNames[id] || "Loading Field Name...";
+  };
+
+  getFieldAddress = (fieldProp) => {
+    if (!fieldProp) return "Unspecified Location";
+    const id = typeof fieldProp === "object" ? fieldProp._id : fieldProp;
+    return this.state.fieldAddresses[id] || "Loading Address...";
   };
 
   render() {
@@ -153,7 +174,7 @@ class HomeView extends Component {
                   </div>
                   <h5 className="fw-bold text-dark mb-1">Access Account</h5>
                   <p className="text-muted small mb-0">
-                    Sign into an existing secure profile to reserve fields.
+                    Sign into an existing profile.
                   </p>
                 </div>
                 <div className="mt-4 text-primary fw-medium small d-none d-sm-block">
@@ -176,7 +197,7 @@ class HomeView extends Component {
                   </div>
                   <h5 className="fw-bold text-dark mb-1">Create Account</h5>
                   <p className="text-muted small mb-0">
-                    Register a new profile to track your tournament brackets.
+                    Register a new profile.
                   </p>
                 </div>
                 <div className="mt-4 text-success fw-medium small d-none d-sm-block">
@@ -200,8 +221,8 @@ class HomeView extends Component {
                     </div>
                     <h5 className="fw-bold text-dark mb-1">User Information</h5>
                     <p className="text-muted small mb-0">
-                      Inspect secure token settings, sessions, credentials, and
-                      names.
+                      Inspect your information and account details, including
+                      your email and username.
                     </p>
                   </div>
                   <div className="mt-4 text-info fw-medium small d-none d-sm-block">
@@ -271,6 +292,12 @@ class HomeView extends Component {
                         className="border-0 text-muted small text-uppercase"
                         style={{ letterSpacing: "0.05rem" }}
                       >
+                        Location
+                      </th>
+                      <th
+                        className="border-0 text-muted small text-uppercase"
+                        style={{ letterSpacing: "0.05rem" }}
+                      >
                         Target Date
                       </th>
                       <th
@@ -300,6 +327,10 @@ class HomeView extends Component {
                               {booking.fieldId.sport}
                             </span>
                           )}
+                        </td>
+                        <td className="text-secondary small">
+                          <i className="bi bi-geo-alt me-1"></i>
+                          {this.getFieldAddress(booking.fieldId)}
                         </td>
                         <td className="text-secondary small">
                           <i className="bi bi-calendar3 me-1"></i>{" "}

@@ -1,6 +1,4 @@
-
-
-db = db.getSiblingDB('sportapp'); // creates & switches to your DB
+db = db.getSiblingDB("sportapp"); // creates & switches to your DB
 
 // --- Users (passwords are plaintext here — hash them in real seeds) ---
 db.users.insertMany([
@@ -9,36 +7,36 @@ db.users.insertMany([
     password: "hashed_pw_1",
     email: "mario@example.com",
     name: "Mario",
-    surname: "Rossi"
+    surname: "Rossi",
   },
   {
     username: "luigi",
     password: "hashed_pw_2",
     email: "luigi@example.com",
     name: "Luigi",
-    surname: "Verdi"
+    surname: "Verdi",
   },
   {
     username: "anna",
     password: "hashed_pw_3",
     email: "anna@example.com",
     name: "Anna",
-    surname: "Bianchi"
+    surname: "Bianchi",
   },
   {
     username: "giulia",
     password: "hashed_pw_4",
     email: "giulia@example.com",
     name: "Giulia",
-    surname: "Neri"
+    surname: "Neri",
   },
   {
     username: "paolo",
     password: "hashed_pw_5",
     email: "paolo@example.com",
     name: "Paolo",
-    surname: "Galli"
-  }
+    surname: "Galli",
+  },
 ]);
 
 db.fields.insertMany([
@@ -46,38 +44,44 @@ db.fields.insertMany([
     name: "Campo Football 1",
     sport: "football",
     address: "Via Roma 1, Milano",
-    slots: ["09:00", "11:00", "14:00", "16:00", "18:00"]
+    slots: [
+      "09:00 - 10:00",
+      "11:00 - 12:00",
+      "14:00 - 15:00",
+      "16:00 - 17:00",
+      "18:00 - 19:00",
+    ],
   },
   {
     name: "Campo Football 2",
     sport: "football",
     address: "Via Torino 10, Torino",
-    slots: ["10:00", "12:00", "15:00", "17:00"]
+    slots: ["10:00 - 11:00", "12:00 - 13:00", "15:00 - 16:00", "17:00 - 18:00"],
   },
   {
     name: "Campo Volleyball 1",
     sport: "volleyball",
     address: "Via Dante 9, Napoli",
-    slots: ["09:00", "11:00", "14:00", "16:00"]
+    slots: ["09:00 - 10:00", "11:00 - 12:00", "14:00 - 15:00", "16:00 - 17:00"],
   },
   {
     name: "Campo Volleyball 2",
     sport: "volleyball",
     address: "Corso Italia 22, Firenze",
-    slots: ["10:00", "12:00", "15:00", "18:00"]
+    slots: ["10:00 - 11:00", "12:00 - 13:00", "15:00 - 16:00", "18:00 - 19:00"],
   },
   {
     name: "Campo Basketball 1",
     sport: "basketball",
     address: "Via Garibaldi 5, Roma",
-    slots: ["09:30", "11:30", "14:30", "16:30"]
+    slots: ["09:30 - 10:30", "11:30 - 12:30", "14:30 - 15:30", "16:30 - 17:30"],
   },
   {
     name: "Campo Basketball 2",
     sport: "basketball",
     address: "Piazza Duomo 3, Bologna",
-    slots: ["10:30", "12:30", "15:30", "17:30"]
-  }
+    slots: ["10:30 - 11:30", "12:30 - 13:30", "15:30 - 16:30", "17:30 - 18:30"],
+  },
 ]);
 
 // --- Bookings ---
@@ -94,34 +98,33 @@ db.bookings.insertMany([
     fieldId: fieldFootball1._id.toString(),
     userId: mario._id.toString(),
     date: "2026-06-20",
-    slot: "09:00"
+    slot: "09:00 - 10:00",
   },
   {
     fieldId: fieldFootball1._id.toString(),
     userId: luigi._id.toString(),
     date: "2026-06-22",
-    slot: "11:00"
+    slot: "11:00 - 12:00",
   },
   {
     fieldId: fieldBasket1._id.toString(),
     userId: anna._id.toString(),
     date: "2026-06-25",
-    slot: "14:30"
+    slot: "14:30 - 15:30",
   },
   {
     fieldId: fieldVolley1._id.toString(),
     userId: mario._id.toString(),
     date: "2026-06-30",
-    slot: "16:00"
+    slot: "16:00 - 17:00",
   },
   {
     fieldId: fieldBasket1._id.toString(),
     userId: luigi._id.toString(),
     date: "2026-06-30",
-    slot: "09:30"
-  }
+    slot: "09:30 - 10:30",
+  },
 ]);
-
 
 // --- Tournaments ---
 
@@ -130,7 +133,7 @@ db.tournaments.insertMany([
     name: "Summer Football Cup",
     sport: "football",
     maxTeams: 8,
-    startDate: "2026-06-17",
+    startDate: "2026-07-20",
     creatorId: mario._id.toString(),
     status: "active",
   },
@@ -138,10 +141,18 @@ db.tournaments.insertMany([
     name: "City Volleyball Trophy",
     sport: "volleyball",
     maxTeams: 6,
-    startDate: "2026-07-06",
+    startDate: "2026-06-20",
     creatorId: luigi._id.toString(),
     status: "completed",
   },
+  {
+    name: "City Volleyball Trophy",
+    sport: "volleyball",
+    maxTeams: 10,
+    startDate: "2026-08-06",
+    creatorId: luigi._id.toString(),
+    status: "upcoming",
+  },
 ]);
 
-print("Database initialized successfully");
+print("Database initialized successfully with updated hourly ranges!");

@@ -15,6 +15,7 @@ const queryTournament = async (req, res) => {
         { name: { $regex: q_normalized, $options: "i" } },
         { sport: { $regex: q_normalized, $options: "i" } },
         { startDate: { $regex: q_normalized, $options: "i" } },
+        { status: { $regex: q_normalized, $options: "i" } },
       ];
     }
     const tournaments = await Tournament.find(query).select("-creatorId");
@@ -99,7 +100,7 @@ const updateTournamentDetails = async (req, res) => {
     });
 
     if (status === "completed") {
-      tournament.status = status;
+      tournament.status = "completed";
     }
 
     await tournament.save();
@@ -162,7 +163,7 @@ const createTournamentSchedule = async (req, res) => {
         .json({ msg: "Need at least 2 teams to generate a schedule" });
     }
 
-    const schedule = generateRoundRobin(teams, tournament);
+    const schedule = await generateRoundRobin(teams, tournament);
 
     tournament.set({
       status: "active",
@@ -205,7 +206,6 @@ const getTournamentStandings = async (req, res) => {
       status: "played",
     });
 
-    // Initialize standings entry for each team
     const standings = {};
     teams.forEach((team) => {
       standings[team._id.toString()] = {
@@ -222,7 +222,6 @@ const getTournamentStandings = async (req, res) => {
       };
     });
 
-    // Process each completed match
     matches.forEach((match) => {
       const home = standings[match.homeTeamId.toString()];
       const away = standings[match.awayTeamId.toString()];
@@ -252,7 +251,6 @@ const getTournamentStandings = async (req, res) => {
           away.points += 1;
         }
       } else {
-        // volleyball / basketball — no draws
         if (homeScore > awayScore) {
           home.won++;
           home.points += 2;
@@ -265,7 +263,6 @@ const getTournamentStandings = async (req, res) => {
       }
     });
 
-    // Compute diff and sort
     const result = Object.values(standings).map((entry) => ({
       ...entry,
       diff: entry.scored - entry.conceded,
@@ -430,7 +427,6 @@ const deleteTeam = async (req, res) => {
 const generateRoundRobin = async (teams, tournament) => {
   let list = [...teams];
 
-  // Odd number of teams — add a BYE placeholder
   if (list.length % 2 !== 0) {
     list.push({ _id: null, name: "BYE" });
   }
@@ -439,59 +435,50 @@ const generateRoundRobin = async (teams, tournament) => {
   const numRounds = numTeams - 1;
   const half = numTeams / 2;
 
-  // Days of the week to spread matches across (Mon, Wed, Fri, Sat)
-  const MATCH_DAYS = [1, 3, 5, 6]; // 0=Sun, 1=Mon, ...
+  const MATCH_DAYS = [1, 3, 5, 6];
 
   const matches = [];
   const bookings = [];
 
-  // Find the first Monday on or after the tournament start date
   const getFirstMonday = (dateStr) => {
     const d = new Date(dateStr);
-    const day = d.getDay(); // 0=Sun
+    const day = d.getDay();
     const diff = day === 0 ? 1 : day === 1 ? 0 : 8 - day;
     d.setDate(d.getDate() + diff);
     return d;
   };
 
-  // Get a date for a given week offset and day-of-week
   const getDateForWeekAndDay = (weekStart, dayOfWeek) => {
     const d = new Date(weekStart);
-    d.setDate(d.getDate() + dayOfWeek - 1); // Mon=1 offset from week start
+    d.setDate(d.getDate() + dayOfWeek - 1);
     return d.toISOString().split("T")[0];
   };
 
-  // Find a field + slot that is free on a given date for the tournament sport
   const findAvailableFieldAndSlot = async (date, sport) => {
     const fields = await Field.find({ sport });
     if (!fields.length) return null;
 
-    // Shuffle fields so we don't always pick the same one
     const shuffled = fields.sort(() => Math.random() - 0.5);
 
     for (const field of shuffled) {
-      // Get already booked slots for this field on this date
       const existingBookings = await Booking.find({ fieldId: field._id, date });
       const bookedSlots = existingBookings.map((b) => b.slot);
 
-      // Find a free slot
       const freeSlot = field.slots.find((s) => !bookedSlots.includes(s));
       if (freeSlot) {
         return { field, slot: freeSlot };
       }
     }
 
-    return null; // No availability found
+    return null;
   };
 
   const weekStart = getFirstMonday(tournament.startDate);
 
   for (let round = 0; round < numRounds; round++) {
-    // Each round is spaced one week apart
     const roundWeekStart = new Date(weekStart);
     roundWeekStart.setDate(roundWeekStart.getDate() + round * 7);
 
-    // Distribute matches in this round across available match days
     const roundMatches = [];
     for (let i = 0; i < half; i++) {
       const home = list[i];
@@ -501,15 +488,12 @@ const generateRoundRobin = async (teams, tournament) => {
       roundMatches.push({ home, away });
     }
 
-    // Assign each match a day within the week
     for (let i = 0; i < roundMatches.length; i++) {
       const { home, away } = roundMatches[i];
 
-      // Cycle through MATCH_DAYS so multiple matches are spread out
       const dayOfWeek = MATCH_DAYS[i % MATCH_DAYS.length];
       const matchDate = getDateForWeekAndDay(roundWeekStart, dayOfWeek);
 
-      // Find an available field + slot for this sport on this date
       const availability = await findAvailableFieldAndSlot(
         matchDate,
         tournament.sport,
@@ -528,26 +512,23 @@ const generateRoundRobin = async (teams, tournament) => {
 
       matches.push(matchDoc);
 
-      // Create a booking to lock the slot
       if (availability) {
         bookings.push({
           fieldId: availability.field._id,
-          userId: tournament.creatorId, // booked on behalf of the creator
+          userId: tournament.creatorId,
           date: matchDate,
           slot: availability.slot,
         });
       }
     }
 
-    // Rotate list (keep first team fixed)
     list.splice(1, 0, list.pop());
   }
 
-  // Bulk insert matches and bookings
   const insertedMatches = await Match.insertMany(matches);
 
   if (bookings.length) {
-    await Booking.insertMany(bookings, { ordered: false }); // ordered:false skips duplicates gracefully
+    await Booking.insertMany(bookings, { ordered: false });
   }
 
   return insertedMatches;

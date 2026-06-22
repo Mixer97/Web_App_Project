@@ -107,6 +107,7 @@ const createFieldBooking = async (req, res) => {
       return res.status(201).json({ msg: "Booking successfull" });
     }
   } catch (error) {
+    console.error("CRASH IN CREATE-BOOKING:", error);
     return res.status(500).json({ msg: "Internal Error" });
   }
 };
