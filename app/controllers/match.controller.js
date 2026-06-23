@@ -34,7 +34,6 @@ const updateMatchResult = async (req, res) => {
         .json({ msg: "Cannot modify a tournament created by another user" });
     }
 
-    // Match date must have passed
     const today = new Date().toISOString().split("T")[0];
     if (match.startDate > today) {
       return res
@@ -68,7 +67,6 @@ const updateMatchResult = async (req, res) => {
 
     await match.save();
 
-    // Check if all matches are played — if so, close the tournament
     const unplayedCount = await Match.countDocuments({
       tournamentId: tournament._id,
       status: "played",

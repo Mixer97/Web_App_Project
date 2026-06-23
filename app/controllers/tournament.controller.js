@@ -440,6 +440,74 @@ const deleteTeam = async (req, res) => {
   }
 };
 
+const updateMatch = async (req, res) => {
+  try {
+    const { id: tournamentId, matchId } = req.params;
+    const userId = req.userId;
+    const { fieldId, slot, date } = req.body;
+
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament)
+      return res.status(404).json({ msg: "Tournament not found" });
+
+    if (tournament.creatorId.toString() !== userId.toString())
+      return res.status(403).json({ msg: "Not authorized" });
+
+    const match = await Match.findById(matchId);
+    if (!match) return res.status(404).json({ msg: "Match not found" });
+    if (match.status === "played")
+      return res.status(400).json({ msg: "Cannot edit a played match" });
+
+    const newDate = date || match.startDate;
+
+    const field = await Field.findById(fieldId);
+    if (!field) return res.status(404).json({ msg: "Field not found" });
+
+    const existingBookings = await Booking.find({ fieldId, date: newDate });
+    const bookedSlots = existingBookings
+      .filter(
+        (b) =>
+          !(
+            b.fieldId === match.fieldId &&
+            b.slot === match.slot &&
+            b.date === match.startDate &&
+            b.userId === tournament.creatorId.toString()
+          ),
+      )
+      .map((b) => b.slot);
+
+    if (bookedSlots.includes(slot))
+      return res
+        .status(409)
+        .json({ msg: "That slot is already booked on this date" });
+
+    if (match.fieldId && match.slot) {
+      await Booking.deleteMany({
+        fieldId: match.fieldId,
+        date: match.startDate,
+        slot: match.slot,
+        userId: tournament.creatorId,
+      });
+    }
+
+    await Booking.create({
+      fieldId,
+      userId: tournament.creatorId,
+      date: newDate,
+      slot,
+    });
+
+    match.fieldId = fieldId;
+    match.slot = slot;
+    match.startDate = newDate;
+    await match.save();
+
+    return res.status(200).json({ msg: "Match updated" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal Error" });
+  }
+};
+
 const generateRoundRobin = async (teams, tournament) => {
   let list = [...teams];
 
@@ -552,6 +620,7 @@ const generateRoundRobin = async (teams, tournament) => {
 
 module.exports = {
   queryTournament,
+  updateMatch,
   createTournament,
   getTournamentDetails,
   updateTournamentDetails,

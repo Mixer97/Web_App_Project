@@ -27,6 +27,12 @@ class TournamentDetailView extends Component {
       editTeamPlayers: [],
       editTeamNewPlayer: { name: "", surname: "", jerseyNumber: "" },
       fieldNames: {},
+      editingMatchId: null,
+      editMatchDate: "",
+      editMatchFields: [],
+      editMatchFieldId: "",
+      editMatchSlots: [],
+      editMatchSlot: "",
     };
   }
 
@@ -230,6 +236,75 @@ class TournamentDetailView extends Component {
     }
   };
 
+  openEditMatch = async (match) => {
+    const { tournament } = this.state;
+    try {
+      const res = await axios.get(`http://localhost:5000/api/fields?q=${tournament.sport}`);
+      const fields = res.data;
+      const currentFieldId = match.fieldId || (fields[0]?._id || "");
+      let slots = [];
+      if (currentFieldId) {
+        const slotsRes = await axios.get(`http://localhost:5000/api/fields/${currentFieldId}/slots?date=${match.startDate}`);
+        slots = slotsRes.data || [];
+        if (match.slot && !slots.includes(match.slot)) slots = [match.slot, ...slots];
+      }
+      this.setState({
+        editingMatchId: match._id,
+        editMatchDate: match.startDate,
+        editMatchFields: fields,
+        editMatchFieldId: currentFieldId,
+        editMatchSlots: slots,
+        editMatchSlot: match.slot || (slots[0] || ""),
+        error: "",
+      });
+    } catch {
+      this.setState({ error: "Failed to load fields." });
+    }
+  };
+
+  onEditMatchFieldChange = async (fieldId, matchDate) => {
+    this.setState({ editMatchFieldId: fieldId, editMatchSlot: "" });
+    try {
+      const slotsRes = await axios.get(`http://localhost:5000/api/fields/${fieldId}/slots?date=${matchDate}`);
+      const slots = slotsRes.data || [];
+      this.setState({ editMatchSlots: slots, editMatchSlot: slots[0] || "" });
+    } catch {
+      this.setState({ editMatchSlots: [], editMatchSlot: "" });
+    }
+  };
+
+  onEditMatchDateChange = async (newDate) => {
+    const { editMatchFieldId } = this.state;
+    this.setState({ editMatchDate: newDate, editMatchSlot: "" });
+    if (!editMatchFieldId || !newDate) return;
+    try {
+      const slotsRes = await axios.get(`http://localhost:5000/api/fields/${editMatchFieldId}/slots?date=${newDate}`);
+      const slots = slotsRes.data || [];
+      this.setState({ editMatchSlots: slots, editMatchSlot: slots[0] || "" });
+    } catch {
+      this.setState({ editMatchSlots: [], editMatchSlot: "" });
+    }
+  };
+
+  handleEditMatchSubmit = async (matchId) => {
+    const { editMatchFieldId, editMatchSlot, editMatchDate } = this.state;
+    if (!editMatchFieldId || !editMatchSlot || !editMatchDate) {
+      this.setState({ error: "Please select a date, field and slot." });
+      return;
+    }
+    try {
+      await axios.put(
+        `http://localhost:5000/api/tournaments/${this.props.tournamentId}/matches/${matchId}`,
+        { fieldId: editMatchFieldId, slot: editMatchSlot, date: editMatchDate },
+        { withCredentials: true },
+      );
+      this.setState({ editingMatchId: null, success: "Match updated." });
+      this.fetchData();
+    } catch (err) {
+      this.setState({ error: err.response?.data?.msg || "Failed to update match." });
+    }
+  };
+
   getTeamName = (teamId) => {
     const team = this.state.teams.find(
       (t) => t._id.toString() === teamId?.toString(),
@@ -267,6 +342,12 @@ class TournamentDetailView extends Component {
       editTeamPlayers,
       editTeamNewPlayer,
       fieldNames,
+      editingMatchId,
+      editMatchDate,
+      editMatchFields,
+      editMatchFieldId,
+      editMatchSlots,
+      editMatchSlot,
     } = this.state;
 
     if (loading) {
@@ -733,62 +814,133 @@ class TournamentDetailView extends Component {
                       )}
                     </div>
 
-                    {this.canEnterResult(match) &&
-                      (resultMatchId === match._id ? (
-                        <div className="d-flex gap-2 align-items-center mt-2">
-                          <input
-                            type="number"
-                            className="form-control form-control-sm"
-                            style={{ width: "60px" }}
-                            min="0"
-                            placeholder="H"
-                            value={resultHome}
-                            onChange={(e) =>
-                              this.setState({ resultHome: e.target.value })
-                            }
-                          />
-                          <span className="text-muted">-</span>
-                          <input
-                            type="number"
-                            className="form-control form-control-sm"
-                            style={{ width: "60px" }}
-                            min="0"
-                            placeholder="A"
-                            value={resultAway}
-                            onChange={(e) =>
-                              this.setState({ resultAway: e.target.value })
-                            }
-                          />
+                    <div className="d-flex gap-2 mt-2 flex-wrap">
+                      {this.canEnterResult(match) &&
+                        (resultMatchId === match._id ? (
+                          <div className="d-flex gap-2 align-items-center">
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              style={{ width: "60px" }}
+                              min="0"
+                              placeholder="H"
+                              value={resultHome}
+                              onChange={(e) =>
+                                this.setState({ resultHome: e.target.value })
+                              }
+                            />
+                            <span className="text-muted">-</span>
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              style={{ width: "60px" }}
+                              min="0"
+                              placeholder="A"
+                              value={resultAway}
+                              onChange={(e) =>
+                                this.setState({ resultAway: e.target.value })
+                              }
+                            />
+                            <button
+                              className="btn btn-sm btn-success"
+                              onClick={() => this.handleResultSubmit(match._id)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={() =>
+                                this.setState({ resultMatchId: null })
+                              }
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
                           <button
-                            className="btn btn-sm btn-success"
-                            onClick={() => this.handleResultSubmit(match._id)}
-                          >
-                            Save
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-secondary"
+                            className="btn btn-sm btn-outline-primary"
                             onClick={() =>
-                              this.setState({ resultMatchId: null })
+                              this.setState({
+                                resultMatchId: match._id,
+                                resultHome: "",
+                                resultAway: "",
+                                error: "",
+                              })
                             }
                           >
-                            Cancel
+                            Enter Result
                           </button>
-                        </div>
-                      ) : (
+                        ))}
+
+                      {creator && match.status !== "played" && match.startDate > new Date().toISOString().split("T")[0] && (
                         <button
-                          className="btn btn-sm btn-outline-primary mt-2"
-                          onClick={() =>
-                            this.setState({
-                              resultMatchId: match._id,
-                              resultHome: "",
-                              resultAway: "",
-                              error: "",
-                            })
-                          }
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => this.openEditMatch(match)}
                         >
-                          Enter Result
+                          <i className="bi bi-pencil me-1"></i>Edit Field
                         </button>
-                      ))}
+                      )}
+                    </div>
+
+                    {editingMatchId === match._id && (
+                      <div className="mt-2 p-2 border rounded bg-light">
+                        <div className="row g-2 align-items-end">
+                          <div className="col-md-3">
+                            <label className="form-label small fw-bold mb-1">Date</label>
+                            <input
+                              type="date"
+                              className="form-control form-control-sm"
+                              value={editMatchDate}
+                              min={new Date(Date.now() + 86400000).toISOString().split("T")[0]}
+                              onChange={(e) => this.onEditMatchDateChange(e.target.value)}
+                            />
+                          </div>
+                          <div className="col">
+                            <label className="form-label small fw-bold mb-1">Field</label>
+                            <select
+                              className="form-select form-select-sm"
+                              value={editMatchFieldId}
+                              onChange={(e) => this.onEditMatchFieldChange(e.target.value, editMatchDate)}
+                            >
+                              {editMatchFields.map((f) => (
+                                <option key={f._id} value={f._id}>{f.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="col">
+                            <label className="form-label small fw-bold mb-1">Slot</label>
+                            <select
+                              className="form-select form-select-sm"
+                              value={editMatchSlot}
+                              onChange={(e) => this.setState({ editMatchSlot: e.target.value })}
+                            >
+                              {editMatchSlots.length === 0 ? (
+                                <option value="">No slots available</option>
+                              ) : (
+                                editMatchSlots.map((s) => (
+                                  <option key={s} value={s}>{s}</option>
+                                ))
+                              )}
+                            </select>
+                          </div>
+                          <div className="col-auto d-flex gap-1">
+                            <button
+                              className="btn btn-sm btn-primary"
+                              onClick={() => this.handleEditMatchSubmit(match._id)}
+                              disabled={!editMatchSlot || !editMatchDate}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={() => this.setState({ editingMatchId: null })}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))
               )}

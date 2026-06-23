@@ -14,6 +14,7 @@ const {
   getTeamDetails,
   updateTeam,
   deleteTeam,
+  updateMatch,
 } = require("../controllers/tournament.controller");
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.put("/:id", verifyToken, updateTournamentDetails);
 router.delete("/:id", verifyToken, deleteTournament);
 router.post("/:id/matches/generate", verifyToken, createTournamentSchedule);
 router.get("/:id/matches", getMatchList);
+router.put("/:id/matches/:matchId", verifyToken, updateMatch);
 router.get("/:id/standings", getTournamentStandings);
 
 router.get("/teams", queryTeam);

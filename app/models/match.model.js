@@ -21,7 +21,8 @@ const matchSchema = new mongoose.Schema({
       message: "startDate must be a valid calendar date",
     },
   },
-  fieldId: { type: String, required: true },
+  fieldId: { type: String, default: null },
+  slot: { type: String, default: null },
   status: { type: String, enum: ["upcoming", "played"], required: true },
   result: { type: String, required: true },
 });

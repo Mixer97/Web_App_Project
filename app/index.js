@@ -16,17 +16,8 @@ const userRoutes = require("./routes/user.route");
 
 const app = express();
 
-
-/*
-app.use(cors({
-  origin:["http://localhost:5001"],
-  methods:["GET", "POST", "DELETE", "PUT"],
-  credentials: true
-}))
-*/
-
 // middleware
-app.use(cors({origin: "http://localhost:5001", credentials: true}));
+app.use(cors({ origin: "http://localhost:5001", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
