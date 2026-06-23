@@ -1,4 +1,5 @@
 import { Component } from "react";
+import axios from "axios";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../Styles/NavBar.css";
 
@@ -18,6 +19,18 @@ class NavBar extends Component {
     this.props.QViewFromChild(obj);
   };
 
+  handleLogout = () => {
+    axios
+      .post("http://localhost:5000/api/auth/signout", {}, { withCredentials: true })
+      .finally(() => {
+        this.props.QViewFromChild({
+          page: "homeView",
+          loggedInUser: null,
+          loggedInUserId: null,
+        });
+      });
+  };
+
   render() {
     const username = this.props.currentUser;
 
@@ -34,37 +47,11 @@ class NavBar extends Component {
         className="col-3 bg-dark text-white sticky-top vh-100 p-4 d-flex flex-column my-custom-sidebar"
         style={sidebarStyle}
       >
-        <div className="mb-4 d-flex flex-column align-items-center gap-4 w-100">
+        <div className="mb-5 mt-3 d-flex flex-column align-items-center gap-4 w-100">
           <h2 className="card-title sports-title-scoreboard">Look&Book</h2>
         </div>
         <div className="d-flex flex-column gap-3">
-          {/* HORIZONTAL SEARCH FORM */}
-          <form onSubmit={(e) => e.preventDefault()}>
-            <div className="mb-3">
 
-              <label
-                htmlFor="sidebarSearch"
-                className="form-label small text-muted"
-              >
-                Search
-              </label>
-
-
-              <div className="d-flex align-items-center">
-                <input
-                  type="search"
-                  className="form-control flex-grow-1"
-                  id="sidebarSearch"
-                  placeholder="Find..."
-                />
-                <button type="submit" className="btn btn-primary ms-2">
-                  <i className="bi bi-search"></i>
-                </button>
-              </div>
-            </div>
-          </form>
-
-          {/* NAVIGATION LINKS */}
           <button
             onClick={() => this.QSetViewInParent({ page: "homeView" })}
             type="submit"
@@ -79,7 +66,7 @@ class NavBar extends Component {
             className="btn btn-secondary"
           >
             <i className="bi bi-person"></i>
-            <span> User</span>
+            <span> Users</span>
           </button>
           <button
             onClick={() => this.QSetViewInParent({ page: "tournamentView" })}
@@ -99,8 +86,16 @@ class NavBar extends Component {
           </button>
         </div>
 
-        {/* ACCOUNT STATUS FOOTER */}
+
         <div className="mt-auto pt-4 border-top border-secondary w-100 px-2">
+          {username && (
+            <button
+              className="btn btn-secondary btn-sm w-100 mb-3"
+              onClick={this.handleLogout}
+            >
+              <i className="bi bi-box-arrow-right me-1"></i>Logout
+            </button>
+          )}
           <div
             className={`card border-0 shadow-sm transition-all text-center p-3 ${
               username

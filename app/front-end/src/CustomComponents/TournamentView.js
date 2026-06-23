@@ -8,11 +8,12 @@ class TournamentCard extends Component {
     const registeredCount = tournament.teamIds ? tournament.teamIds.length : 0;
     const isFull = registeredCount >= tournament.maxTeams;
 
-    const statusColor = {
-      upcoming: "bg-warning text-dark",
-      active: "bg-success text-white",
-      completed: "bg-secondary text-white",
-    }[tournament.status] || "bg-secondary text-white";
+    const statusColor =
+      {
+        upcoming: "bg-warning text-dark",
+        active: "bg-success text-white",
+        completed: "bg-secondary text-white",
+      }[tournament.status] || "bg-secondary text-white";
 
     return (
       <div className="col">
@@ -21,7 +22,9 @@ class TournamentCard extends Component {
             <div>
               <div className="d-flex justify-content-between align-items-start mb-2">
                 <h4 className="fw-bold text-dark m-0">{tournament.name}</h4>
-                <span className={`badge px-2 py-1 small fw-bold text-uppercase ${statusColor}`}>
+                <span
+                  className={`badge px-2 py-1 small fw-bold text-uppercase ${statusColor}`}
+                >
                   {tournament.status}
                 </span>
               </div>
@@ -31,7 +34,8 @@ class TournamentCard extends Component {
                   {tournament.sport}
                 </span>
                 <span className="text-muted small">
-                  <i className="bi bi-calendar3 me-1"></i>{tournament.startDate}
+                  <i className="bi bi-calendar3 me-1"></i>
+                  {tournament.startDate}
                 </span>
               </div>
 
@@ -105,12 +109,18 @@ class TournamentView extends Component {
     axios
       .get(url)
       .then((res) => this.setState({ tournaments: res.data }))
-      .catch((err) => console.error("Error loading tournaments: " + err.message));
+      .catch((err) =>
+        console.error("Error loading tournaments: " + err.message),
+      );
   };
 
   QhandleSportChange = (e) => {
     const nextSport = e.target.value;
-    this.setState({ selectedSport: nextSport, selectedStatus: "", searchQuery: "" });
+    this.setState({
+      selectedSport: nextSport,
+      selectedStatus: "",
+      searchQuery: "",
+    });
     const params = new URLSearchParams();
     if (nextSport) params.append("q", nextSport.toLowerCase());
     this.fetchData(params);
@@ -118,7 +128,11 @@ class TournamentView extends Component {
 
   QhandleStatusChange = (e) => {
     const nextStatus = e.target.value;
-    this.setState({ selectedStatus: nextStatus, selectedSport: "", searchQuery: "" });
+    this.setState({
+      selectedStatus: nextStatus,
+      selectedSport: "",
+      searchQuery: "",
+    });
     const params = new URLSearchParams();
     if (nextStatus) params.append("q", nextStatus.toLowerCase());
     this.fetchData(params);
@@ -148,14 +162,18 @@ class TournamentView extends Component {
               </div>
               <div>
                 <h3 className="fw-bold text-dark m-0">Tournaments</h3>
-                <p className="text-muted small m-0">Browse and manage competitions</p>
+                <p className="text-muted small m-0">
+                  Browse and manage competitions
+                </p>
               </div>
             </div>
 
             {loggedInUserId && (
               <button
                 className="btn btn-success btn-sm fw-semibold"
-                onClick={() => this.props.QViewFromChild({ page: "tournamentCreateView" })}
+                onClick={() =>
+                  this.props.QViewFromChild({ page: "tournamentCreateView" })
+                }
               >
                 <i className="bi bi-plus-lg me-1"></i>New Tournament
               </button>
@@ -210,9 +228,14 @@ class TournamentView extends Component {
                     className="form-control border-0 bg-transparent flex-grow-1 shadow-none"
                     value={this.state.searchQuery}
                     placeholder="Search a tournament..."
-                    onChange={(e) => this.setState({ searchQuery: e.target.value })}
+                    onChange={(e) =>
+                      this.setState({ searchQuery: e.target.value })
+                    }
                   />
-                  <button type="submit" className="btn btn-success btn-sm px-3 my-1 ms-2">
+                  <button
+                    type="submit"
+                    className="btn btn-success btn-sm px-3 my-1 ms-2"
+                  >
                     Search
                   </button>
                 </div>
@@ -227,7 +250,12 @@ class TournamentView extends Component {
               <TournamentCard
                 key={t._id}
                 tournament={t}
-                onView={(id) => this.props.QViewFromChild({ page: "tournamentDetailView", tournamentId: id })}
+                onView={(id) =>
+                  this.props.QViewFromChild({
+                    page: "tournamentDetailView",
+                    tournamentId: id,
+                  })
+                }
               />
             ))
           ) : (

@@ -22,6 +22,10 @@ class TournamentDetailView extends Component {
       resultMatchId: null,
       resultHome: "",
       resultAway: "",
+      editingTeamId: null,
+      editTeamName: "",
+      editTeamPlayers: [],
+      editTeamNewPlayer: { name: "", surname: "", jerseyNumber: "" },
     };
   }
 
@@ -34,7 +38,9 @@ class TournamentDetailView extends Component {
     try {
       const [detailRes, standingsRes] = await Promise.all([
         axios.get(`http://localhost:5000/api/tournaments/${tournamentId}`),
-        axios.get(`http://localhost:5000/api/tournaments/${tournamentId}/standings`),
+        axios.get(
+          `http://localhost:5000/api/tournaments/${tournamentId}/standings`,
+        ),
       ]);
       const t = detailRes.data.tournament;
       this.setState({
@@ -84,7 +90,9 @@ class TournamentDetailView extends Component {
       this.setState({ success: "Schedule generated!" });
       this.fetchData();
     } catch (err) {
-      this.setState({ error: err.response?.data?.msg || "Failed to generate schedule." });
+      this.setState({
+        error: err.response?.data?.msg || "Failed to generate schedule.",
+      });
     }
   };
 
@@ -94,7 +102,12 @@ class TournamentDetailView extends Component {
     try {
       await axios.put(
         `http://localhost:5000/api/tournaments/${this.props.tournamentId}`,
-        { name: editName, sport: editSport, maxTeams: Number(editMaxTeams), startDate: editStartDate },
+        {
+          name: editName,
+          sport: editSport,
+          maxTeams: Number(editMaxTeams),
+          startDate: editStartDate,
+        },
         { withCredentials: true },
       );
       this.setState({ showEditForm: false, success: "Tournament updated." });
@@ -118,15 +131,93 @@ class TournamentDetailView extends Component {
         { homeScore: home, awayScore: away },
         { withCredentials: true },
       );
-      this.setState({ resultMatchId: null, resultHome: "", resultAway: "", success: "Result saved." });
+      this.setState({
+        resultMatchId: null,
+        resultHome: "",
+        resultAway: "",
+        success: "Result saved.",
+      });
       this.fetchData();
     } catch (err) {
-      this.setState({ error: err.response?.data?.msg || "Failed to save result." });
+      this.setState({
+        error: err.response?.data?.msg || "Failed to save result.",
+      });
+    }
+  };
+
+  openEditTeam = (team) => {
+    this.setState({
+      editingTeamId: team._id,
+      editTeamName: team.name,
+      editTeamPlayers: team.players.map((p) => ({ ...p })),
+      editTeamNewPlayer: { name: "", surname: "", jerseyNumber: "" },
+      error: "",
+    });
+  };
+
+  closeEditTeam = () => this.setState({ editingTeamId: null });
+
+  handleEditTeamPlayerChange = (index, field, value) => {
+    const players = [...this.state.editTeamPlayers];
+    players[index] = { ...players[index], [field]: value };
+    this.setState({ editTeamPlayers: players });
+  };
+
+  handleEditTeamAddPlayer = () => {
+    const { editTeamNewPlayer, editTeamPlayers } = this.state;
+    if (!editTeamNewPlayer.name.trim() || !editTeamNewPlayer.surname.trim())
+      return;
+    this.setState({
+      editTeamPlayers: [...editTeamPlayers, { ...editTeamNewPlayer }],
+      editTeamNewPlayer: { name: "", surname: "", jerseyNumber: "" },
+    });
+  };
+
+  handleEditTeamRemovePlayer = (index) => {
+    this.setState({
+      editTeamPlayers: this.state.editTeamPlayers.filter((_, i) => i !== index),
+    });
+  };
+
+  handleDeleteTeam = async (teamId) => {
+    if (!window.confirm("Remove this team from the tournament?")) return;
+    try {
+      await axios.delete(
+        `http://localhost:5000/api/tournaments/${this.props.tournamentId}/teams/${teamId}`,
+        { withCredentials: true },
+      );
+      this.setState({ success: "Team removed." });
+      this.fetchData();
+    } catch (err) {
+      this.setState({ error: err.response?.data?.msg || "Failed to remove team." });
+    }
+  };
+
+  handleEditTeamSubmit = async (teamId) => {
+    const { editTeamName, editTeamPlayers } = this.state;
+    if (!editTeamName.trim()) {
+      this.setState({ error: "Team name cannot be empty." });
+      return;
+    }
+    try {
+      await axios.put(
+        `http://localhost:5000/api/tournaments/${this.props.tournamentId}/teams/${teamId}`,
+        { name: editTeamName.trim(), players: editTeamPlayers },
+        { withCredentials: true },
+      );
+      this.setState({ editingTeamId: null, success: "Team updated." });
+      this.fetchData();
+    } catch (err) {
+      this.setState({
+        error: err.response?.data?.msg || "Failed to update team.",
+      });
     }
   };
 
   getTeamName = (teamId) => {
-    const team = this.state.teams.find((t) => t._id.toString() === teamId?.toString());
+    const team = this.state.teams.find(
+      (t) => t._id.toString() === teamId?.toString(),
+    );
     return team ? team.name : "Unknown";
   };
 
@@ -139,10 +230,26 @@ class TournamentDetailView extends Component {
 
   render() {
     const {
-      tournament, teams, matches, standings, loading,
-      error, success, showAddTeam, showEditForm,
-      editName, editSport, editMaxTeams, editStartDate,
-      resultMatchId, resultHome, resultAway,
+      tournament,
+      teams,
+      matches,
+      standings,
+      loading,
+      error,
+      success,
+      showAddTeam,
+      showEditForm,
+      editName,
+      editSport,
+      editMaxTeams,
+      editStartDate,
+      resultMatchId,
+      resultHome,
+      resultAway,
+      editingTeamId,
+      editTeamName,
+      editTeamPlayers,
+      editTeamNewPlayer,
     } = this.state;
 
     if (loading) {
@@ -154,19 +261,21 @@ class TournamentDetailView extends Component {
     }
 
     if (!tournament) {
-      return <div className="alert alert-danger m-4">Tournament not found.</div>;
+      return (
+        <div className="alert alert-danger m-4">Tournament not found.</div>
+      );
     }
 
     const creator = this.isCreator();
-    const statusColor = {
-      upcoming: "bg-warning text-dark",
-      active: "bg-success text-white",
-      completed: "bg-secondary text-white",
-    }[tournament.status] || "bg-secondary text-white";
+    const statusColor =
+      {
+        upcoming: "bg-warning text-dark",
+        active: "bg-success text-white",
+        completed: "bg-secondary text-white",
+      }[tournament.status] || "bg-secondary text-white";
 
     return (
       <div className="container-fluid p-3 pt-2 mt-2">
-        {/* Back button */}
         <button
           className="btn btn-sm btn-outline-secondary mb-3"
           onClick={() => this.props.QViewFromChild({ page: "tournamentView" })}
@@ -175,9 +284,10 @@ class TournamentDetailView extends Component {
         </button>
 
         {error && <div className="alert alert-danger py-2 small">{error}</div>}
-        {success && <div className="alert alert-success py-2 small">{success}</div>}
+        {success && (
+          <div className="alert alert-success py-2 small">{success}</div>
+        )}
 
-        {/* Header card */}
         <div className="card shadow border-0 p-4 mb-4">
           <div className="d-flex justify-content-between align-items-start flex-wrap gap-2">
             <div>
@@ -186,11 +296,14 @@ class TournamentDetailView extends Component {
                 <span className="badge bg-primary bg-opacity-10 text-primary px-2 py-1 small fw-bold">
                   {tournament.sport}
                 </span>
-                <span className={`badge px-2 py-1 small fw-bold ${statusColor}`}>
+                <span
+                  className={`badge px-2 py-1 small fw-bold ${statusColor}`}
+                >
                   {tournament.status}
                 </span>
                 <span className="text-muted small">
-                  <i className="bi bi-calendar3 me-1"></i>{tournament.startDate}
+                  <i className="bi bi-calendar3 me-1"></i>
+                  {tournament.startDate}
                 </span>
                 <span className="text-muted small">
                   <i className="bi bi-people me-1"></i>
@@ -205,7 +318,13 @@ class TournamentDetailView extends Component {
                   <>
                     <button
                       className="btn btn-sm btn-outline-primary"
-                      onClick={() => this.setState({ showEditForm: !showEditForm, error: "", success: "" })}
+                      onClick={() =>
+                        this.setState({
+                          showEditForm: !showEditForm,
+                          error: "",
+                          success: "",
+                        })
+                      }
                     >
                       <i className="bi bi-pencil me-1"></i>Edit
                     </button>
@@ -214,22 +333,30 @@ class TournamentDetailView extends Component {
                         className="btn btn-sm btn-success"
                         onClick={this.handleGenerateSchedule}
                       >
-                        <i className="bi bi-lightning me-1"></i>Generate Schedule
+                        <i className="bi bi-lightning me-1"></i>Generate
+                        Schedule
                       </button>
                     )}
                   </>
                 )}
-                <button className="btn btn-sm btn-outline-danger" onClick={this.handleDelete}>
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={this.handleDelete}
+                >
                   <i className="bi bi-trash me-1"></i>Delete
                 </button>
               </div>
             )}
           </div>
 
-          {/* Edit form */}
           {showEditForm && (
-            <form onSubmit={this.handleEditSubmit} className="mt-4 pt-3 border-top">
-              <h6 className="fw-bold text-secondary small text-uppercase mb-3">Edit Tournament</h6>
+            <form
+              onSubmit={this.handleEditSubmit}
+              className="mt-4 pt-3 border-top"
+            >
+              <h6 className="fw-bold text-secondary small text-uppercase mb-3">
+                Edit Tournament
+              </h6>
               <div className="row g-2">
                 <div className="col-md-6">
                   <label className="form-label small fw-bold">Name</label>
@@ -237,7 +364,9 @@ class TournamentDetailView extends Component {
                     type="text"
                     className="form-control form-control-sm"
                     value={editName}
-                    onChange={(e) => this.setState({ editName: e.target.value })}
+                    onChange={(e) =>
+                      this.setState({ editName: e.target.value })
+                    }
                   />
                 </div>
                 <div className="col-md-3">
@@ -245,7 +374,9 @@ class TournamentDetailView extends Component {
                   <select
                     className="form-select form-select-sm"
                     value={editSport}
-                    onChange={(e) => this.setState({ editSport: e.target.value })}
+                    onChange={(e) =>
+                      this.setState({ editSport: e.target.value })
+                    }
                   >
                     <option value="football">Football</option>
                     <option value="basketball">Basketball</option>
@@ -259,7 +390,9 @@ class TournamentDetailView extends Component {
                     className="form-control form-control-sm"
                     min="2"
                     value={editMaxTeams}
-                    onChange={(e) => this.setState({ editMaxTeams: e.target.value })}
+                    onChange={(e) =>
+                      this.setState({ editMaxTeams: e.target.value })
+                    }
                   />
                 </div>
                 <div className="col-md-4">
@@ -268,7 +401,9 @@ class TournamentDetailView extends Component {
                     type="date"
                     className="form-control form-control-sm"
                     value={editStartDate}
-                    onChange={(e) => this.setState({ editStartDate: e.target.value })}
+                    onChange={(e) =>
+                      this.setState({ editStartDate: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -280,26 +415,31 @@ class TournamentDetailView extends Component {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-sm btn-primary">Save Changes</button>
+                <button type="submit" className="btn btn-sm btn-primary">
+                  Save Changes
+                </button>
               </div>
             </form>
           )}
         </div>
 
         <div className="row g-4">
-          {/* Teams section */}
           <div className="col-md-5">
             <div className="card shadow border-0 p-4 h-100">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="fw-bold m-0">Teams</h5>
-                {creator && tournament.status === "upcoming" && teams.length < tournament.maxTeams && (
-                  <button
-                    className="btn btn-sm btn-success"
-                    onClick={() => this.setState({ showAddTeam: !showAddTeam })}
-                  >
-                    <i className="bi bi-plus me-1"></i>Add Team
-                  </button>
-                )}
+                {creator &&
+                  tournament.status === "upcoming" &&
+                  teams.length < tournament.maxTeams && (
+                    <button
+                      className="btn btn-sm btn-success"
+                      onClick={() =>
+                        this.setState({ showAddTeam: !showAddTeam })
+                      }
+                    >
+                      <i className="bi bi-plus me-1"></i>Add Team
+                    </button>
+                  )}
               </div>
 
               {showAddTeam && (
@@ -317,37 +457,222 @@ class TournamentDetailView extends Component {
               )}
 
               {teams.length === 0 ? (
-                <p className="text-muted small fst-italic">No teams registered yet.</p>
+                <p className="text-muted small fst-italic">
+                  No teams registered yet.
+                </p>
               ) : (
-                teams.map((team) => (
-                  <div key={team._id} className="mb-3">
-                    <div className="fw-semibold text-dark small mb-1">
-                      <i className="bi bi-shield-fill-check text-success me-1"></i>
-                      {team.name}
-                    </div>
-                    {team.players && team.players.length > 0 ? (
-                      <ul className="list-unstyled ms-3 mb-0">
-                        {team.players.map((p, i) => (
-                          <li key={i} className="text-muted small">
-                            {p.jerseyNumber ? (
-                              <span className="text-success fw-bold me-1">#{p.jerseyNumber}</span>
-                            ) : null}
-                            {p.name} {p.surname}
-                          </li>
+                teams.map((team) => {
+                  const canEditTeam =
+                    creator &&
+                    (tournament.status === "upcoming" ||
+                      tournament.status === "active");
+                  const isEditing = editingTeamId === team._id;
+
+                  if (isEditing) {
+                    return (
+                      <div
+                        key={team._id}
+                        className="mb-3 p-3 border rounded bg-white"
+                      >
+                        <div className="mb-2">
+                          <label className="form-label small fw-bold mb-1">
+                            Team Name
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            value={editTeamName}
+                            onChange={(e) =>
+                              this.setState({ editTeamName: e.target.value })
+                            }
+                          />
+                        </div>
+
+                        <label className="form-label small fw-bold mb-1">
+                          Players
+                        </label>
+                        {editTeamPlayers.map((p, i) => (
+                          <div
+                            key={i}
+                            className="d-flex gap-1 align-items-center mb-1"
+                          >
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              placeholder="Name"
+                              value={p.name}
+                              onChange={(e) =>
+                                this.handleEditTeamPlayerChange(
+                                  i,
+                                  "name",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              placeholder="Surname"
+                              value={p.surname}
+                              onChange={(e) =>
+                                this.handleEditTeamPlayerChange(
+                                  i,
+                                  "surname",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              placeholder="#"
+                              style={{ width: "52px", flexShrink: 0 }}
+                              value={p.jerseyNumber || ""}
+                              onChange={(e) =>
+                                this.handleEditTeamPlayerChange(
+                                  i,
+                                  "jerseyNumber",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger btn-sm px-1"
+                              onClick={() => this.handleEditTeamRemovePlayer(i)}
+                            >
+                              <i className="bi bi-x"></i>
+                            </button>
+                          </div>
                         ))}
-                      </ul>
-                    ) : (
-                      <p className="text-muted small ms-3 fst-italic mb-0">No players.</p>
-                    )}
-                  </div>
-                ))
+
+                        <div className="d-flex gap-1 align-items-center mt-2 mb-3">
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            placeholder="Name"
+                            value={editTeamNewPlayer.name}
+                            onChange={(e) =>
+                              this.setState({
+                                editTeamNewPlayer: {
+                                  ...editTeamNewPlayer,
+                                  name: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            placeholder="Surname"
+                            value={editTeamNewPlayer.surname}
+                            onChange={(e) =>
+                              this.setState({
+                                editTeamNewPlayer: {
+                                  ...editTeamNewPlayer,
+                                  surname: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            placeholder="#"
+                            style={{ width: "52px", flexShrink: 0 }}
+                            value={editTeamNewPlayer.jerseyNumber}
+                            onChange={(e) =>
+                              this.setState({
+                                editTeamNewPlayer: {
+                                  ...editTeamNewPlayer,
+                                  jerseyNumber: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-outline-success btn-sm px-1"
+                            onClick={this.handleEditTeamAddPlayer}
+                          >
+                            <i className="bi bi-plus"></i>
+                          </button>
+                        </div>
+
+                        <div className="d-flex gap-2">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            onClick={this.closeEditTeam}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-primary"
+                            onClick={() => this.handleEditTeamSubmit(team._id)}
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={team._id} className="card border-0 shadow-sm mb-3 g-2 p-1">
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <div className="fw-semibold text-dark small">
+                          <i className="bi bi-shield-fill-check text-success me-1"></i>
+                          {team.name}
+                        </div>
+                        {canEditTeam && (
+                          <div className="d-flex gap-1">
+                            <button
+                              className="btn btn-outline-secondary btn-sm py-0 px-1"
+                              style={{ fontSize: "0.7rem" }}
+                              onClick={() => this.openEditTeam(team)}
+                            >
+                              <i className="bi bi-pencil me-1"></i>Edit
+                            </button>
+                            {tournament.status === "upcoming" && (
+                              <button
+                                className="btn btn-outline-danger btn-sm py-0 px-1"
+                                style={{ fontSize: "0.7rem" }}
+                                onClick={() => this.handleDeleteTeam(team._id)}
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {team.players && team.players.length > 0 ? (
+                        <ul className="list-unstyled ms-3 mb-0">
+                          {team.players.map((p, i) => (
+                            <li key={i} className="text-muted small">
+                              {p.jerseyNumber ? (
+                                <span className="text-success fw-bold me-1">
+                                  #{p.jerseyNumber}
+                                </span>
+                              ) : null}
+                              {p.name} {p.surname}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-muted small ms-3 fst-italic mb-0">
+                          No players.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
 
-          {/* Matches + Standings */}
           <div className="col-md-7">
-            {/* Matches */}
             <div className="card shadow border-0 p-4 mb-4">
               <h5 className="fw-bold mb-3">Matches</h5>
               {matches.length === 0 ? (
@@ -358,7 +683,10 @@ class TournamentDetailView extends Component {
                 </p>
               ) : (
                 matches.map((match) => (
-                  <div key={match._id} className="mb-3 pb-3 border-bottom border-opacity-25">
+                  <div
+                    key={match._id}
+                    className="mb-3 pb-3 border-bottom border-opacity-25"
+                  >
                     <div className="d-flex justify-content-between align-items-center">
                       <span className="small fw-semibold">
                         {this.getTeamName(match.homeTeamId)}{" "}
@@ -372,11 +700,12 @@ class TournamentDetailView extends Component {
                       </span>
                     </div>
                     <div className="text-muted small mt-1">
-                      <i className="bi bi-calendar3 me-1"></i>{match.startDate}
+                      <i className="bi bi-calendar3 me-1"></i>
+                      {match.startDate}
                     </div>
 
-                    {this.canEnterResult(match) && (
-                      resultMatchId === match._id ? (
+                    {this.canEnterResult(match) &&
+                      (resultMatchId === match._id ? (
                         <div className="d-flex gap-2 align-items-center mt-2">
                           <input
                             type="number"
@@ -385,7 +714,9 @@ class TournamentDetailView extends Component {
                             min="0"
                             placeholder="H"
                             value={resultHome}
-                            onChange={(e) => this.setState({ resultHome: e.target.value })}
+                            onChange={(e) =>
+                              this.setState({ resultHome: e.target.value })
+                            }
                           />
                           <span className="text-muted">-</span>
                           <input
@@ -395,7 +726,9 @@ class TournamentDetailView extends Component {
                             min="0"
                             placeholder="A"
                             value={resultAway}
-                            onChange={(e) => this.setState({ resultAway: e.target.value })}
+                            onChange={(e) =>
+                              this.setState({ resultAway: e.target.value })
+                            }
                           />
                           <button
                             className="btn btn-sm btn-success"
@@ -405,7 +738,9 @@ class TournamentDetailView extends Component {
                           </button>
                           <button
                             className="btn btn-sm btn-outline-secondary"
-                            onClick={() => this.setState({ resultMatchId: null })}
+                            onClick={() =>
+                              this.setState({ resultMatchId: null })
+                            }
                           >
                             Cancel
                           </button>
@@ -413,18 +748,23 @@ class TournamentDetailView extends Component {
                       ) : (
                         <button
                           className="btn btn-sm btn-outline-primary mt-2"
-                          onClick={() => this.setState({ resultMatchId: match._id, resultHome: "", resultAway: "", error: "" })}
+                          onClick={() =>
+                            this.setState({
+                              resultMatchId: match._id,
+                              resultHome: "",
+                              resultAway: "",
+                              error: "",
+                            })
+                          }
                         >
                           Enter Result
                         </button>
-                      )
-                    )}
+                      ))}
                   </div>
                 ))
               )}
             </div>
 
-            {/* Standings */}
             {standings.length > 0 && (
               <div className="card shadow border-0 p-4">
                 <h5 className="fw-bold mb-3">Standings</h5>
@@ -448,15 +788,21 @@ class TournamentDetailView extends Component {
                       {standings.map((entry, i) => (
                         <tr key={entry.teamId}>
                           <td className="small text-muted">{i + 1}</td>
-                          <td className="small fw-semibold">{entry.teamName}</td>
+                          <td className="small fw-semibold">
+                            {entry.teamName}
+                          </td>
                           <td className="small text-center">{entry.played}</td>
                           <td className="small text-center">{entry.won}</td>
                           <td className="small text-center">{entry.drawn}</td>
                           <td className="small text-center">{entry.lost}</td>
                           <td className="small text-center">{entry.scored}</td>
-                          <td className="small text-center">{entry.conceded}</td>
+                          <td className="small text-center">
+                            {entry.conceded}
+                          </td>
                           <td className="small text-center">{entry.diff}</td>
-                          <td className="small text-center fw-bold text-success">{entry.points}</td>
+                          <td className="small text-center fw-bold text-success">
+                            {entry.points}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

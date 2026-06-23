@@ -419,6 +419,10 @@ const deleteTeam = async (req, res) => {
     }
 
     await Team.findByIdAndDelete(teamId);
+    tournament.teamIds = tournament.teamIds.filter(
+      (id) => id.toString() !== teamId.toString(),
+    );
+    await tournament.save();
     return res.status(200).json({ msg: "Team deleted successfully" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal Error" });
@@ -436,12 +440,10 @@ const generateRoundRobin = async (teams, tournament) => {
   const numRounds = numTeams - 1;
   const half = numTeams / 2;
 
-
-  const MATCH_DAYS = [1, 3, 5, 6]; 
+  const MATCH_DAYS = [1, 3, 5, 6];
 
   const matches = [];
   const bookings = [];
-
 
   const getFirstMonday = (dateStr) => {
     const d = new Date(dateStr);
@@ -451,26 +453,21 @@ const generateRoundRobin = async (teams, tournament) => {
     return d;
   };
 
-
   const getDateForWeekAndDay = (weekStart, dayOfWeek) => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + dayOfWeek - 1);
     return d.toISOString().split("T")[0];
   };
 
-
   const findAvailableFieldAndSlot = async (date, sport) => {
     const fields = await Field.find({ sport });
     if (!fields.length) return null;
 
-
     const shuffled = fields.sort(() => Math.random() - 0.5);
 
     for (const field of shuffled) {
-
       const existingBookings = await Booking.find({ fieldId: field._id, date });
       const bookedSlots = existingBookings.map((b) => b.slot);
-
 
       const freeSlot = field.slots.find((s) => !bookedSlots.includes(s));
       if (freeSlot) {
@@ -484,10 +481,8 @@ const generateRoundRobin = async (teams, tournament) => {
   const weekStart = getFirstMonday(tournament.startDate);
 
   for (let round = 0; round < numRounds; round++) {
-
     const roundWeekStart = new Date(weekStart);
     roundWeekStart.setDate(roundWeekStart.getDate() + round * 7);
-
 
     const roundMatches = [];
     for (let i = 0; i < half; i++) {
@@ -498,14 +493,11 @@ const generateRoundRobin = async (teams, tournament) => {
       roundMatches.push({ home, away });
     }
 
-
     for (let i = 0; i < roundMatches.length; i++) {
       const { home, away } = roundMatches[i];
 
-
       const dayOfWeek = MATCH_DAYS[i % MATCH_DAYS.length];
       const matchDate = getDateForWeekAndDay(roundWeekStart, dayOfWeek);
-
 
       const availability = await findAvailableFieldAndSlot(
         matchDate,
@@ -525,7 +517,6 @@ const generateRoundRobin = async (teams, tournament) => {
 
       matches.push(matchDoc);
 
-
       if (availability) {
         bookings.push({
           fieldId: availability.field._id,
@@ -536,10 +527,8 @@ const generateRoundRobin = async (teams, tournament) => {
       }
     }
 
-
     list.splice(1, 0, list.pop());
   }
-
 
   const insertedMatches = await Match.insertMany(matches);
 

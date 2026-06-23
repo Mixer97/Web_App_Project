@@ -68,8 +68,14 @@ const userWhoAmI = async (req, res) => {
   }
 };
 
+const userSignout = (req, res) => {
+  res.clearCookie("token");
+  return res.status(200).json({ msg: "Signed out successfully" });
+};
+
 module.exports = {
   userSignup,
   userSignin,
   userWhoAmI,
+  userSignout,
 };

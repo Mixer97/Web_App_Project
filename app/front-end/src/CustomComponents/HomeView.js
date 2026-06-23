@@ -8,6 +8,7 @@ class HomeView extends Component {
       bookings: [],
       fieldNames: {},
       fieldAddresses: {},
+      myTournaments: [],
       loading: false,
       error: "",
     };
@@ -17,17 +18,51 @@ class HomeView extends Component {
     if (this.props.currentUser) {
       this.fetchUserBookings();
     }
+    if (this.props.loggedInUserId) {
+      this.fetchMyTournaments();
+    }
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.currentUser !== prevProps.currentUser) {
+    const userChanged = this.props.currentUser !== prevProps.currentUser;
+    const idChanged = this.props.loggedInUserId !== prevProps.loggedInUserId;
+
+    if (userChanged) {
       if (this.props.currentUser) {
         this.fetchUserBookings();
       } else {
-        this.setState({ bookings: [], fieldNames: {}, fieldAddresses: {} });
+        this.setState({
+          bookings: [],
+          fieldNames: {},
+          fieldAddresses: {},
+          myTournaments: [],
+        });
+      }
+    }
+
+    if (idChanged) {
+      if (this.props.loggedInUserId) {
+        this.fetchMyTournaments();
+      } else {
+        this.setState({ myTournaments: [] });
       }
     }
   }
+
+  fetchMyTournaments = () => {
+    const { loggedInUserId } = this.props;
+    if (!loggedInUserId) return;
+    axios
+      .get("http://localhost:5000/api/tournaments")
+      .then((res) => {
+        const mine = res.data.filter(
+          (t) =>
+            t.creatorId && t.creatorId.toString() === loggedInUserId.toString(),
+        );
+        this.setState({ myTournaments: mine });
+      })
+      .catch(() => {});
+  };
 
   fetchUserBookings = () => {
     this.setState({ loading: true, error: "" });
@@ -248,9 +283,7 @@ class HomeView extends Component {
                 <i className="bi bi-calendar-check fs-5"></i>
               </div>
               <div>
-                <h4 className="fw-bold text-dark m-0">
-                  Your Active Field Reservations
-                </h4>
+                <h4 className="fw-bold text-dark m-0">My Fields</h4>
                 <p className="text-muted small m-0">
                   Review schedule metrics or cancel upcoming slots
                 </p>
@@ -367,6 +400,97 @@ class HomeView extends Component {
                 <span className="small">
                   You do not have any active field reservations recorded yet.
                 </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {isLoggedIn && (
+          <div
+            className="card shadow-sm border-0 p-4 mx-auto mt-4"
+            style={{ maxWidth: "900px" }}
+          >
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <div className="d-flex align-items-center">
+                <div
+                  className="bg-success bg-opacity-10 text-success rounded-circle p-2 me-3 d-inline-flex align-items-center justify-content-center"
+                  style={{ width: "42px", height: "42px" }}
+                >
+                  <i className="bi bi-trophy fs-5"></i>
+                </div>
+                <div>
+                  <h4 className="fw-bold text-dark m-0">My Tournaments</h4>
+                  <p className="text-muted small m-0">
+                    Tournaments you have created
+                  </p>
+                </div>
+              </div>
+              <button
+                className="btn btn-success btn-sm fw-semibold"
+                onClick={() =>
+                  this.QSetViewInParent({ page: "tournamentCreateView" })
+                }
+              >
+                <i className="bi bi-plus-lg me-1"></i>New Tournament
+              </button>
+            </div>
+
+            {this.state.myTournaments.length === 0 ? (
+              <div className="text-center p-4 bg-light rounded border text-muted">
+                <i className="bi bi-trophy d-block fs-2 mb-2 opacity-25"></i>
+                <span className="small">
+                  You have not created any tournaments yet.
+                </span>
+              </div>
+            ) : (
+              <div className="row row-cols-1 row-cols-md-2 g-3">
+                {this.state.myTournaments.map((t) => {
+                  const statusColor =
+                    {
+                      upcoming: "bg-warning text-dark",
+                      active: "bg-success text-white",
+                      completed: "bg-secondary text-white",
+                    }[t.status] || "bg-secondary text-white";
+
+                  return (
+                    <div className="col" key={t._id}>
+                      <div
+                        className="card border-0 bg-light p-3 h-100"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          this.QSetViewInParent({
+                            page: "tournamentDetailView",
+                            tournamentId: t._id,
+                          })
+                        }
+                      >
+                        <div className="d-flex justify-content-between align-items-start">
+                          <span className="fw-semibold text-dark">
+                            {t.name}
+                          </span>
+                          <span
+                            className={`badge small fw-bold ms-2 flex-shrink-0 ${statusColor}`}
+                          >
+                            {t.status}
+                          </span>
+                        </div>
+                        <div className="d-flex gap-2 mt-2 align-items-center">
+                          <span className="badge bg-primary bg-opacity-10 text-primary small">
+                            {t.sport}
+                          </span>
+                          <span className="text-muted small">
+                            <i className="bi bi-calendar3 me-1"></i>
+                            {t.startDate}
+                          </span>
+                          <span className="text-muted small">
+                            <i className="bi bi-people me-1"></i>
+                            {t.teamIds ? t.teamIds.length : 0}/{t.maxTeams}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
