@@ -47,6 +47,12 @@ class HomeView extends Component {
         this.setState({ myTournaments: [] });
       }
     }
+
+    const pageChanged = this.props.currentPage !== prevProps.currentPage;
+    if (pageChanged && (this.props.currentPage === "homeView" || this.props.currentPage === "")) {
+      if (this.props.currentUser) this.fetchUserBookings();
+      if (this.props.loggedInUserId) this.fetchMyTournaments();
+    }
   }
 
   fetchMyTournaments = () => {

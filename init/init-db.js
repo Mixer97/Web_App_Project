@@ -94,11 +94,17 @@ var fieldBasketball2 = db.fields.findOne({ name: "Campo Basketball 2" });
 
 // ─── Bookings ─────────────────────────────────────────────────────────────────
 db.bookings.insertMany([
-  { fieldId: fieldFootball1._id.toString(),   userId: mario._id.toString(),  date: "2026-06-20", slot: "09:00 - 10:00" },
-  { fieldId: fieldFootball1._id.toString(),   userId: luigi._id.toString(),  date: "2026-06-22", slot: "11:00 - 12:00" },
+  // Manual bookings
+  { fieldId: fieldFootball1._id.toString(),   userId: mario._id.toString(),  date: "2026-06-25", slot: "09:00 - 10:00" },
   { fieldId: fieldBasketball1._id.toString(), userId: anna._id.toString(),   date: "2026-06-25", slot: "14:30 - 15:30" },
   { fieldId: fieldVolleyball1._id.toString(), userId: mario._id.toString(),  date: "2026-06-30", slot: "16:00 - 17:00" },
   { fieldId: fieldBasketball1._id.toString(), userId: luigi._id.toString(),  date: "2026-06-30", slot: "09:30 - 10:30" },
+  // T3 (Summer Football Cup) — Round 3 upcoming matches
+  { fieldId: fieldFootball1._id.toString(),   userId: mario._id.toString(),  date: "2026-06-25", slot: "14:00 - 15:00" },
+  { fieldId: fieldFootball2._id.toString(),   userId: mario._id.toString(),  date: "2026-06-27", slot: "15:00 - 16:00" },
+  // T4 (City Volleyball League) — Round 3 upcoming matches
+  { fieldId: fieldVolleyball1._id.toString(), userId: luigi._id.toString(),  date: "2026-06-25", slot: "16:00 - 17:00" },
+  { fieldId: fieldVolleyball2._id.toString(), userId: luigi._id.toString(),  date: "2026-06-27", slot: "18:00 - 19:00" },
 ]);
 
 // ═════════════════════════════════════════════════════════════════════════════

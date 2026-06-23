@@ -127,6 +127,17 @@ const deleteTournament = async (req, res) => {
         .json({ msg: "Not authorized to delete this tournament" });
     }
 
+    const matches = await Match.find({ tournamentId: tournamentId });
+    for (const match of matches) {
+      if (match.fieldId && match.startDate) {
+        await Booking.deleteMany({
+          fieldId: match.fieldId,
+          date: match.startDate,
+          userId: tournament.creatorId,
+        });
+      }
+    }
+
     await Team.deleteMany({ tournamentId: tournamentId });
     await Match.deleteMany({ tournamentId: tournamentId });
     await Tournament.findByIdAndDelete(tournamentId);

@@ -26,6 +26,7 @@ class TournamentDetailView extends Component {
       editTeamName: "",
       editTeamPlayers: [],
       editTeamNewPlayer: { name: "", surname: "", jerseyNumber: "" },
+      fieldNames: {},
     };
   }
 
@@ -54,9 +55,24 @@ class TournamentDetailView extends Component {
         editMaxTeams: t.maxTeams,
         editStartDate: t.startDate,
       });
+      this.resolveFieldNames(detailRes.data.matches);
     } catch {
       this.setState({ loading: false, error: "Failed to load tournament." });
     }
+  };
+
+  resolveFieldNames = async (matches) => {
+    const uniqueIds = [...new Set(matches.map((m) => m.fieldId).filter(Boolean))];
+    if (!uniqueIds.length) return;
+    const entries = await Promise.all(
+      uniqueIds.map((id) =>
+        axios
+          .get(`http://localhost:5000/api/fields/${id}`)
+          .then((res) => [id, res.data.name])
+          .catch(() => [id, "Unknown Field"]),
+      ),
+    );
+    this.setState({ fieldNames: Object.fromEntries(entries) });
   };
 
   isCreator = () => {
@@ -250,6 +266,7 @@ class TournamentDetailView extends Component {
       editTeamName,
       editTeamPlayers,
       editTeamNewPlayer,
+      fieldNames,
     } = this.state;
 
     if (loading) {
@@ -401,6 +418,7 @@ class TournamentDetailView extends Component {
                     type="date"
                     className="form-control form-control-sm"
                     value={editStartDate}
+                    min={new Date().toISOString().split("T")[0]}
                     onChange={(e) =>
                       this.setState({ editStartDate: e.target.value })
                     }
@@ -699,9 +717,20 @@ class TournamentDetailView extends Component {
                         {match.status === "played" ? match.result : "upcoming"}
                       </span>
                     </div>
-                    <div className="text-muted small mt-1">
-                      <i className="bi bi-calendar3 me-1"></i>
-                      {match.startDate}
+                    <div className="text-muted small mt-1 d-flex gap-3">
+                      <span>
+                        <i className="bi bi-calendar3 me-1"></i>
+                        {match.startDate}
+                      </span>
+                      {match.fieldId && (
+                        <span>
+                          <i className="bi bi-geo-alt me-1"></i>
+                          {fieldNames[match.fieldId] || "Loading..."}
+                          {match.slot && (
+                            <span className="ms-1 text-secondary">({match.slot})</span>
+                          )}
+                        </span>
+                      )}
                     </div>
 
                     {this.canEnterResult(match) &&

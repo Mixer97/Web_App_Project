@@ -117,6 +117,7 @@ class App extends Component<any, any> {
             QViewFromChild={this.QSetView}
             currentUser={this.state.loggedInUser}
             loggedInUserId={this.state.loggedInUserId}
+            currentPage={this.state.currentPage}
           />
         );
     }

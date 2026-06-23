@@ -101,6 +101,7 @@ class TournamentCreateView extends Component {
                 type="date"
                 className="form-control form-control-sm"
                 value={startDate}
+                min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => this.setState({ startDate: e.target.value })}
               />
             </div>
