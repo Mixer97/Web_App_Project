@@ -6,6 +6,8 @@ import NavBar from "./CustomComponents/NavBar";
 import UserView from "./CustomComponents/UserView";
 import FieldView from "./CustomComponents/FieldView";
 import TournamentView from "./CustomComponents/TournamentView";
+import TournamentCreateView from "./CustomComponents/TournamentCreateView";
+import TournamentDetailView from "./CustomComponents/TournamentDetailView";
 import AvailabilityView from "./CustomComponents/AvailabilityView";
 import RegisterView from "./CustomComponents/RegisterView";
 import WhoAmIView from "./CustomComponents/WhoAmIView";
@@ -46,18 +48,18 @@ class App extends Component<any, any> {
 
   QSetView = (obj) => {
     this.setState({
-      currentPage: obj.page || this.state.currentPage,
-      fieldID: obj.id || this.state.fieldID,
-      date: obj.date || this.state.date,
-      bookedSlots: obj.bookedSlots || this.state.bookedSlots,
-      loggedInUser: obj.loggedInUser || this.state.loggedInUser,
-      loggedInUserId: obj.loggedInUserId || this.state.loggedInUserId,
+      currentPage: obj.page !== undefined ? obj.page : this.state.currentPage,
+      fieldID: obj.id !== undefined ? obj.id : this.state.fieldID,
+      date: obj.date !== undefined ? obj.date : this.state.date,
+      bookedSlots: obj.bookedSlots !== undefined ? obj.bookedSlots : this.state.bookedSlots,
+      loggedInUser: obj.loggedInUser !== undefined ? obj.loggedInUser : this.state.loggedInUser,
+      loggedInUserId: obj.loggedInUserId !== undefined ? obj.loggedInUserId : this.state.loggedInUserId,
+      tournamentId: obj.tournamentId !== undefined ? obj.tournamentId : this.state.tournamentId,
     });
   };
 
   QGetView = (state) => {
-    let page = state.currentPage;
-    switch (page) {
+    switch (state.currentPage) {
       case "loginView":
         return (
           <LoginView
@@ -78,7 +80,17 @@ class App extends Component<any, any> {
         return (
           <TournamentView
             QViewFromChild={this.QSetView}
-            QHandlerTournamentBookingFromChild={this.QSetView}
+            loggedInUserId={this.state.loggedInUserId}
+          />
+        );
+      case "tournamentCreateView":
+        return <TournamentCreateView QViewFromChild={this.QSetView} />;
+      case "tournamentDetailView":
+        return (
+          <TournamentDetailView
+            QViewFromChild={this.QSetView}
+            tournamentId={this.state.tournamentId}
+            loggedInUserId={this.state.loggedInUserId}
           />
         );
       case "registerView":
@@ -88,39 +100,8 @@ class App extends Component<any, any> {
             QViewFromChild={this.QSetView}
           />
         );
-      case "tournamentRegisterView":
-        return (
-          <div
-            className="card shadow border-0 p-4 mx-auto"
-            style={{ maxWidth: "600px" }}
-          >
-            <h4 className="fw-bold mb-2">Register Your Team</h4>
-            <p className="text-muted small">
-              Championship Tournament Reference ID:{" "}
-              <code>{this.state.tournamentID}</code>
-            </p>
-            <hr className="opacity-25" />
-            {/* You can swap this block out with a dedicated <TournamentRegisterFormView /> component later */}
-            <div className="d-flex gap-2 justify-content-end mt-4">
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => this.QSetView({ page: "tournamentView" })}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-success btn-sm"
-                onClick={() => alert("Registration saved!")}
-              >
-                Submit Entry
-              </button>
-            </div>
-          </div>
-        );
       case "whoAmIView":
         return <WhoAmIView QViewFromChild={this.QSetView} />;
-      case "userView":
-        return <UserView QViewFromChild={this.QSetView} />;
       case "availabilityView":
         return (
           <AvailabilityView
@@ -149,27 +130,14 @@ class App extends Component<any, any> {
     this.QSetView({ page: "homeView", loggedInUser: obj.username });
   };
 
-  QHandlerFieldBookingFromChild = (obj) => {
-    this.QSetView({
-      page: "availabilityView",
-      fieldID: obj.id,
-      date: obj.date,
-      bookedSlots: obj.bookedSlots,
-    });
-  };
-
   fetchIdLoggedInUser = () => {
-    const url = `http://localhost:5000/api/whoami`;
     axios
-      .get(url, {
-        withCredentials: true,
-      })
+      .get("http://localhost:5000/api/whoami", { withCredentials: true })
       .then((res) => this.setState({ loggedInUserId: res.data._id }))
       .catch((err) => console.log("Error: " + err.message));
   };
 
   render() {
-    console.log(this.state);
     return (
       <div
         id="APP"

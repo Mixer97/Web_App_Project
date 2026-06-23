@@ -18,7 +18,7 @@ const queryTournament = async (req, res) => {
         { status: { $regex: q_normalized, $options: "i" } },
       ];
     }
-    const tournaments = await Tournament.find(query).select("-creatorId");
+    const tournaments = await Tournament.find(query);
     return res.status(200).json(tournaments);
   } catch (error) {
     return res.status(500).json({ msg: "Internal Error" });
@@ -77,7 +77,7 @@ const updateTournamentDetails = async (req, res) => {
       return res.status(404).json({ msg: "Tournament not found" });
     }
 
-    if (!(userId === tournament.creatorId)) {
+    if (tournament.creatorId.toString() !== userId.toString()) {
       return res
         .status(403)
         .json({ msg: "Cannot modify a tournament created by another user" });
@@ -121,9 +121,9 @@ const deleteTournament = async (req, res) => {
       return res.status(404).json({ msg: "Tournament not found" });
     }
 
-    if (!(userId === tournament.creatorId)) {
+    if (tournament.creatorId.toString() !== userId.toString()) {
       return res
-        .status(400)
+        .status(403)
         .json({ msg: "Not authorized to delete this tournament" });
     }
 
@@ -147,7 +147,7 @@ const createTournamentSchedule = async (req, res) => {
       return res.status(404).json({ msg: "Tournament not found" });
     }
 
-    if (userId !== tournament.creatorId) {
+    if (userId.toString() !== tournament.creatorId.toString()) {
       return res.status(403).json({ msg: "Not authorized" });
     }
 
@@ -308,7 +308,7 @@ const createTeam = async (req, res) => {
       return res.status(404).json({ msg: "Tournament not found" });
     }
 
-    if (!(userId === tournament.creatorId)) {
+    if (tournament.creatorId.toString() !== userId.toString()) {
       return res
         .status(400)
         .json({ msg: "Not authorized to create teams for this tournament" });
@@ -329,6 +329,7 @@ const createTeam = async (req, res) => {
     await tournament.save();
     return res.status(201).json({ msg: "team creation successfull" });
   } catch (error) {
+    console.error("createTeam error:", error);
     return res.status(500).json({ msg: "Internal Error" });
   }
 };
@@ -368,7 +369,7 @@ const updateTeam = async (req, res) => {
       return res.status(404).json({ msg: "Tournament not found" });
     }
 
-    if (!(userId === tournament.creatorId)) {
+    if (tournament.creatorId.toString() !== userId.toString()) {
       return res
         .status(403)
         .json({ msg: "Cannot modify a tournament created by another user" });
@@ -405,7 +406,7 @@ const deleteTeam = async (req, res) => {
       return res.status(404).json({ msg: "Tournament not found" });
     }
 
-    if (!(userId === tournament.creatorId)) {
+    if (tournament.creatorId.toString() !== userId.toString()) {
       return res
         .status(400)
         .json({ msg: "Not authorized to delete a team in this tournament" });
@@ -435,10 +436,12 @@ const generateRoundRobin = async (teams, tournament) => {
   const numRounds = numTeams - 1;
   const half = numTeams / 2;
 
-  const MATCH_DAYS = [1, 3, 5, 6];
+
+  const MATCH_DAYS = [1, 3, 5, 6]; 
 
   const matches = [];
   const bookings = [];
+
 
   const getFirstMonday = (dateStr) => {
     const d = new Date(dateStr);
@@ -448,21 +451,26 @@ const generateRoundRobin = async (teams, tournament) => {
     return d;
   };
 
+
   const getDateForWeekAndDay = (weekStart, dayOfWeek) => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + dayOfWeek - 1);
     return d.toISOString().split("T")[0];
   };
 
+
   const findAvailableFieldAndSlot = async (date, sport) => {
     const fields = await Field.find({ sport });
     if (!fields.length) return null;
 
+
     const shuffled = fields.sort(() => Math.random() - 0.5);
 
     for (const field of shuffled) {
+
       const existingBookings = await Booking.find({ fieldId: field._id, date });
       const bookedSlots = existingBookings.map((b) => b.slot);
+
 
       const freeSlot = field.slots.find((s) => !bookedSlots.includes(s));
       if (freeSlot) {
@@ -476,8 +484,10 @@ const generateRoundRobin = async (teams, tournament) => {
   const weekStart = getFirstMonday(tournament.startDate);
 
   for (let round = 0; round < numRounds; round++) {
+
     const roundWeekStart = new Date(weekStart);
     roundWeekStart.setDate(roundWeekStart.getDate() + round * 7);
+
 
     const roundMatches = [];
     for (let i = 0; i < half; i++) {
@@ -488,11 +498,14 @@ const generateRoundRobin = async (teams, tournament) => {
       roundMatches.push({ home, away });
     }
 
+
     for (let i = 0; i < roundMatches.length; i++) {
       const { home, away } = roundMatches[i];
 
+
       const dayOfWeek = MATCH_DAYS[i % MATCH_DAYS.length];
       const matchDate = getDateForWeekAndDay(roundWeekStart, dayOfWeek);
+
 
       const availability = await findAvailableFieldAndSlot(
         matchDate,
@@ -512,6 +525,7 @@ const generateRoundRobin = async (teams, tournament) => {
 
       matches.push(matchDoc);
 
+
       if (availability) {
         bookings.push({
           fieldId: availability.field._id,
@@ -522,8 +536,10 @@ const generateRoundRobin = async (teams, tournament) => {
       }
     }
 
+
     list.splice(1, 0, list.pop());
   }
+
 
   const insertedMatches = await Match.insertMany(matches);
 
