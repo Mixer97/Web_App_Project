@@ -5,8 +5,7 @@ A Sports Web Application designed to manage amateur tournaments and allow users 
 
 - **Front-end:** A React application for the user interface
 - **Back-end:** A Node.js/Express server that handles data storage, authentication, and API logic
-- **OSS**: development of the back-end and front-end was done using Cors to work on two separated servers. This was done in order to restart only a server when changes were done. The complete project here presented doesn't Cors and simply serves the front-end to the back-end. 
-- 
+- **OSS**: development of the back-end and front-end was done using Cors to work on two separated servers. This was done in order to restart only a server when changes were done. The complete project here presented doesn't Cors and simply serves the front-end to the back-end.
 
 ---
 
