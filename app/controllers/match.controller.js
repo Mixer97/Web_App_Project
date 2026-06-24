@@ -67,12 +67,12 @@ const updateMatchResult = async (req, res) => {
 
     await match.save();
 
-    const unplayedCount = await Match.countDocuments({
+    const remainingCount = await Match.countDocuments({
       tournamentId: tournament._id,
-      status: "played",
+      status: "upcoming",
     });
 
-    if (unplayedCount === 0) {
+    if (remainingCount === 0) {
       tournament.set({ status: "completed" });
       await tournament.save();
     }

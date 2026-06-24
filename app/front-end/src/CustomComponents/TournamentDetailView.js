@@ -959,9 +959,9 @@ class TournamentDetailView extends Component {
                         <th className="small text-center">W</th>
                         <th className="small text-center">D</th>
                         <th className="small text-center">L</th>
-                        <th className="small text-center">GF</th>
-                        <th className="small text-center">GA</th>
-                        <th className="small text-center">GD</th>
+                        <th className="small text-center">SCORED</th>
+                        <th className="small text-center">CONCEDED</th>
+                        <th className="small text-center">DIFFERENCE</th>
                         <th className="small text-center fw-bold">Pts</th>
                       </tr>
                     </thead>

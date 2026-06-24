@@ -20,15 +20,8 @@ class TournamentRegisterView extends Component {
     const { playerName, playerSurname, playerJerseyNumber, playersList } =
       this.state;
 
-    if (
-      !playerName.trim() ||
-      !playerSurname.trim() ||
-      !playerJerseyNumber.trim()
-    ) {
-      this.setState({
-        errorMessage:
-          "Player Name, Surname, and Jersey Number are all required.",
-      });
+    if (!playerName.trim() || !playerSurname.trim()) {
+      this.setState({ errorMessage: "Player Name and Surname are required." });
       return;
     }
 
@@ -212,9 +205,9 @@ class TournamentRegisterView extends Component {
                     >
                       <span>
                         {index + 1}.{" "}
-                        <strong className="text-success me-1">
-                          #{p.jerseyNumber}
-                        </strong>{" "}
+                        {p.jerseyNumber && (
+                          <strong className="text-success me-1">#{p.jerseyNumber}</strong>
+                        )}{" "}
                         {p.name} {p.surname}
                       </span>
                       <button

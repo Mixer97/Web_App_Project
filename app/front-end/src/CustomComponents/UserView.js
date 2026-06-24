@@ -57,6 +57,7 @@ class UserCard extends Component {
               <div className="fw-semibold text-dark">
                 {user.name} {user.surname}
               </div>
+              <div className="text-muted small">@{user.username}</div>
             </div>
           </div>
 

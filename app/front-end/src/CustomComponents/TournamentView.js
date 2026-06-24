@@ -39,7 +39,9 @@ class TournamentCard extends Component {
                 </span>
               </div>
 
-              <div className="mb-4">
+            </div>
+
+              {tournament.status === "upcoming" && <div className="mb-4">
                 <span
                   className="text-muted text-uppercase fw-bold d-block mb-2"
                   style={{ fontSize: "0.65rem", letterSpacing: "0.05rem" }}
@@ -51,7 +53,7 @@ class TournamentCard extends Component {
                   style={{ height: "6px" }}
                 >
                   <div
-                    className={`rounded h-100 ${isFull ? "bg-danger" : "bg-success"}`}
+                    className={`rounded h-100 ${isFull ? "bg-danger" : "bg-warning"}`}
                     style={{
                       width: `${Math.min((registeredCount / tournament.maxTeams) * 100, 100)}%`,
                     }}
@@ -69,13 +71,12 @@ class TournamentCard extends Component {
                     </span>
                   )}
                 </span>
-              </div>
-            </div>
+              </div>}
 
             <div className="pt-2 border-top border-secondary border-opacity-10">
               <button
                 type="button"
-                className="btn btn-primary w-100 fw-medium btn-sm d-flex align-items-center justify-content-center"
+                className={`btn w-100 fw-medium btn-sm d-flex align-items-center justify-content-center ${{ upcoming: "btn-warning", active: "btn-success", completed: "btn-secondary" }[tournament.status] || "btn-secondary"}`}
                 onClick={() => onView(tournament._id)}
               >
                 <span>View Details</span>
@@ -108,7 +109,15 @@ class TournamentView extends Component {
     const url = `http://localhost:5000/api/tournaments?${params.toString()}`;
     axios
       .get(url)
-      .then((res) => this.setState({ tournaments: res.data }))
+      .then((res) => {
+        const order = { upcoming: 0, active: 1, completed: 2 };
+        const sorted = res.data.sort((a, b) => {
+          const statusDiff = (order[a.status] ?? 3) - (order[b.status] ?? 3);
+          if (statusDiff !== 0) return statusDiff;
+          return a.startDate.localeCompare(b.startDate);
+        });
+        this.setState({ tournaments: sorted });
+      })
       .catch((err) =>
         console.error("Error loading tournaments: " + err.message),
       );

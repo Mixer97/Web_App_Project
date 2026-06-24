@@ -181,7 +181,7 @@ class FieldView extends Component {
             </div>
             <div>
               <h3 className="fw-bold text-dark m-0">
-                Field Search & Logistics
+                Fields
               </h3>
               <p className="text-muted small m-0">
                 Filter active field availability matrices in real-time

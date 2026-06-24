@@ -129,6 +129,7 @@ class App extends Component<any, any> {
   };
 
   QHandlerUserRegister = (obj) => {
+    this.fetchIdLoggedInUser();
     this.QSetView({ page: "homeView", loggedInUser: obj.username });
   };
 
