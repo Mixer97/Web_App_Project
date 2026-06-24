@@ -21,7 +21,7 @@ class NavBar extends Component {
 
   handleLogout = () => {
     axios
-      .post("http://localhost:5000/api/auth/signout", {}, { withCredentials: true })
+      .post("/api/auth/signout", {}, { withCredentials: true })
       .finally(() => {
         this.props.QViewFromChild({
           page: "homeView",

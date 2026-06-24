@@ -32,7 +32,7 @@ class App extends Component<any, any> {
 
   checkAuthStatus = () => {
     axios
-      .get("http://localhost:5000/api/whoami", { withCredentials: true })
+      .get("/api/whoami", { withCredentials: true })
       .then((res) => {
         if (res.data && res.data.username) {
           this.setState({
@@ -135,7 +135,7 @@ class App extends Component<any, any> {
 
   fetchIdLoggedInUser = () => {
     axios
-      .get("http://localhost:5000/api/whoami", { withCredentials: true })
+      .get("/api/whoami", { withCredentials: true })
       .then((res) => this.setState({ loggedInUserId: res.data._id }))
       .catch((err) => console.log("Error: " + err.message));
   };

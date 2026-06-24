@@ -21,7 +21,7 @@ class AvailabilityView extends Component {
     }
 
     this.setState({ error: "", success: false });
-    const url = `http://localhost:5000/api/fields/${this.state.fieldID}/bookings`;
+    const url = `/api/fields/${this.state.fieldID}/bookings`;
 
     axios
       .post(

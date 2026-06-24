@@ -106,7 +106,7 @@ class TournamentView extends Component {
   }
 
   fetchData = (params = new URLSearchParams()) => {
-    const url = `http://localhost:5000/api/tournaments?${params.toString()}`;
+    const url = `/api/tournaments?${params.toString()}`;
     axios
       .get(url)
       .then((res) => {
@@ -236,7 +236,7 @@ class TournamentView extends Component {
                     type="search"
                     className="form-control border-0 bg-transparent flex-grow-1 shadow-none"
                     value={this.state.searchQuery}
-                    placeholder="Search a tournament..."
+                    placeholder="Search a tournament, team or player..."
                     onChange={(e) =>
                       this.setState({ searchQuery: e.target.value })
                     }

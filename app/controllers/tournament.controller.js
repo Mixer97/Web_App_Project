@@ -7,19 +7,44 @@ const Booking = require("../models/booking.model");
 const queryTournament = async (req, res) => {
   try {
     let q = req.query.q;
-    let query = {};
 
-    if (q) {
-      const q_normalized = q.trim().toLowerCase();
-      query.$or = [
-        { name: { $regex: q_normalized, $options: "i" } },
-        { sport: { $regex: q_normalized, $options: "i" } },
-        { startDate: { $regex: q_normalized, $options: "i" } },
-        { status: { $regex: q_normalized, $options: "i" } },
-      ];
+    if (!q) {
+      const tournaments = await Tournament.find({});
+      return res.status(200).json(tournaments);
     }
-    const tournaments = await Tournament.find(query);
-    return res.status(200).json(tournaments);
+
+    const q_normalized = q.trim().toLowerCase();
+
+    const [tournamentMatches, teamMatches] = await Promise.all([
+      Tournament.find({
+        $or: [
+          { name: { $regex: q_normalized, $options: "i" } },
+          { sport: { $regex: q_normalized, $options: "i" } },
+          { startDate: { $regex: q_normalized, $options: "i" } },
+          { status: { $regex: q_normalized, $options: "i" } },
+        ],
+      }),
+      Team.find({
+        $or: [
+          { name: { $regex: q_normalized, $options: "i" } },
+          { "players.name": { $regex: q_normalized, $options: "i" } },
+          { "players.surname": { $regex: q_normalized, $options: "i" } },
+        ],
+      }),
+    ]);
+
+    const tournamentIdsFromTeams = [...new Set(teamMatches.map((t) => t.tournamentId))];
+    const extraTournaments = tournamentIdsFromTeams.length
+      ? await Tournament.find({ _id: { $in: tournamentIdsFromTeams } })
+      : [];
+
+    const seen = new Set(tournamentMatches.map((t) => t._id.toString()));
+    const merged = [
+      ...tournamentMatches,
+      ...extraTournaments.filter((t) => !seen.has(t._id.toString())),
+    ];
+
+    return res.status(200).json(merged);
   } catch (error) {
     return res.status(500).json({ msg: "Internal Error" });
   }

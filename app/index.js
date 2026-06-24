@@ -1,9 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./db/connect");
-const cors = require("cors");
+// const cors = require("cors"); THIS WAS USED DURING DEVELOPMENT TO USE 2 SERVERS AND ONLY RESTART THE ONE THAT WAS CHANGED, BUT NOW WE USE A SINGLE SERVER FOR BOTH FRONT-END AND BACK-END, SO IT IS NOT NEEDED ANYMORE
 
 const { userWhoAmI } = require("./controllers/auth.controller");
 const { verifyToken } = require("./middleware/auth");
@@ -17,7 +18,8 @@ const userRoutes = require("./routes/user.route");
 const app = express();
 
 // middleware
-app.use(cors({ origin: "http://localhost:5001", credentials: true }));
+app.use(express.static(path.join(__dirname, "build")));
+// app.use(cors({ origin: "http://localhost:5001", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -30,9 +32,9 @@ app.use("/api/tournaments", tournamentRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/users", userRoutes);
 
-// base test
+// connection between back-end and front-end
 app.get("/", (req, res) => {
-  res.send("Hello from Node API Server");
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 // whoamI functionality

@@ -28,7 +28,7 @@ class LoginView extends Component {
 
     axios
       .post(
-        "http://localhost:5000/api/auth/signin",
+        "/api/auth/signin",
         {
           username: this.state.user.username,
           password: this.state.user.password,

@@ -24,7 +24,7 @@ class FieldCard extends Component {
     const { field, date } = this.props;
     this.setState({ loading: true });
 
-    const url = `http://localhost:5000/api/fields/${field._id}/slots?date=${date}`;
+    const url = `/api/fields/${field._id}/slots?date=${date}`;
 
     axios
       .get(url)
@@ -136,7 +136,7 @@ class FieldView extends Component {
   }
 
   fetchData = (params = new URLSearchParams()) => {
-    const url = `http://localhost:5000/api/fields?${params.toString()}`;
+    const url = `/api/fields?${params.toString()}`;
     axios
       .get(url)
       .then((res) => this.setState({ fields: res.data }))

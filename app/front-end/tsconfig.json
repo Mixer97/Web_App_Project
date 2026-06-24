@@ -10,8 +10,9 @@
             "es2015"
         ],
         "jsx": "react-jsx",
-        "allowJs": true,        
+        "allowJs": true,
         "checkJs": false,
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        "noEmit": true
     }
 }

@@ -59,7 +59,7 @@ class HomeView extends Component {
     const { loggedInUserId } = this.props;
     if (!loggedInUserId) return;
     axios
-      .get("http://localhost:5000/api/tournaments")
+      .get("/api/tournaments")
       .then((res) => {
         const mine = res.data.filter(
           (t) =>
@@ -72,7 +72,7 @@ class HomeView extends Component {
 
   fetchUserBookings = () => {
     this.setState({ loading: true, error: "" });
-    const url = "http://localhost:5000/api/fields/bookings/user";
+    const url = "/api/fields/bookings/user";
 
     axios
       .get(url, { withCredentials: true })
@@ -110,7 +110,7 @@ class HomeView extends Component {
 
       if (id && (!updatedNames[id] || !updatedAddresses[id])) {
         const promise = axios
-          .get(`http://localhost:5000/api/fields/${id}`, {
+          .get(`/api/fields/${id}`, {
             withCredentials: true,
           })
           .then((res) => {
@@ -157,7 +157,7 @@ class HomeView extends Component {
     }
 
     this.setState({ error: "" });
-    const url = `http://localhost:5000/api/fields/${fieldId}/bookings/${bookingId}`;
+    const url = `/api/fields/${fieldId}/bookings/${bookingId}`;
 
     axios
       .delete(url, { withCredentials: true })

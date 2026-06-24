@@ -25,7 +25,7 @@ class RegisterView extends Component {
   QcheckUserWithDB = () => {
     axios
       .post(
-        "http://localhost:5000/api/auth/signin",
+        "/api/auth/signin",
         {
           username: this.state.user.username,
           password: this.state.user.password,
@@ -56,7 +56,7 @@ class RegisterView extends Component {
     this.setState({ error: "" });
 
     axios
-      .post("http://localhost:5000/api/auth/signup", {
+      .post("/api/auth/signup", {
         username: this.state.user.username,
         password: this.state.user.password,
         name: this.state.user.name,

@@ -22,7 +22,7 @@ class WhoAmIView extends Component {
 
   fetchIdLoggedInUser = () => {
     this.setState({ username: "", name: "", surname: "", email: "" });
-    const url = `http://localhost:5000/api/whoami`;
+    const url = `/api/whoami`;
     axios
       .get(url, {
         withCredentials: true,

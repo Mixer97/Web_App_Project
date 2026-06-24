@@ -66,7 +66,7 @@ class TournamentRegisterView extends Component {
     }
 
     try {
-      const url = `http://localhost:5000/api/tournaments/${tournamentId}/teams`;
+      const url = `/api/tournaments/${tournamentId}/teams`;
       const response = await axios.post(
         url,
         { name: teamName.trim(), players: playersList },

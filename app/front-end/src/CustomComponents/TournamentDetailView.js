@@ -44,9 +44,9 @@ class TournamentDetailView extends Component {
     const { tournamentId } = this.props;
     try {
       const [detailRes, standingsRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/tournaments/${tournamentId}`),
+        axios.get(`/api/tournaments/${tournamentId}`),
         axios.get(
-          `http://localhost:5000/api/tournaments/${tournamentId}/standings`,
+          `/api/tournaments/${tournamentId}/standings`,
         ),
       ]);
       const t = detailRes.data.tournament;
@@ -73,7 +73,7 @@ class TournamentDetailView extends Component {
     const entries = await Promise.all(
       uniqueIds.map((id) =>
         axios
-          .get(`http://localhost:5000/api/fields/${id}`)
+          .get(`/api/fields/${id}`)
           .then((res) => [id, res.data.name])
           .catch(() => [id, "Unknown Field"]),
       ),
@@ -92,7 +92,7 @@ class TournamentDetailView extends Component {
     if (!window.confirm("Delete this tournament and all its data?")) return;
     try {
       await axios.delete(
-        `http://localhost:5000/api/tournaments/${this.props.tournamentId}`,
+        `/api/tournaments/${this.props.tournamentId}`,
         { withCredentials: true },
       );
       this.props.QViewFromChild({ page: "tournamentView" });
@@ -105,7 +105,7 @@ class TournamentDetailView extends Component {
     this.setState({ error: "", success: "" });
     try {
       await axios.post(
-        `http://localhost:5000/api/tournaments/${this.props.tournamentId}/matches/generate`,
+        `/api/tournaments/${this.props.tournamentId}/matches/generate`,
         {},
         { withCredentials: true },
       );
@@ -123,7 +123,7 @@ class TournamentDetailView extends Component {
     const { editName, editSport, editMaxTeams, editStartDate } = this.state;
     try {
       await axios.put(
-        `http://localhost:5000/api/tournaments/${this.props.tournamentId}`,
+        `/api/tournaments/${this.props.tournamentId}`,
         {
           name: editName,
           sport: editSport,
@@ -149,7 +149,7 @@ class TournamentDetailView extends Component {
     }
     try {
       await axios.put(
-        `http://localhost:5000/api/matches/${matchId}/result`,
+        `/api/matches/${matchId}/result`,
         { homeScore: home, awayScore: away },
         { withCredentials: true },
       );
@@ -205,7 +205,7 @@ class TournamentDetailView extends Component {
     if (!window.confirm("Remove this team from the tournament?")) return;
     try {
       await axios.delete(
-        `http://localhost:5000/api/tournaments/${this.props.tournamentId}/teams/${teamId}`,
+        `/api/tournaments/${this.props.tournamentId}/teams/${teamId}`,
         { withCredentials: true },
       );
       this.setState({ success: "Team removed." });
@@ -223,7 +223,7 @@ class TournamentDetailView extends Component {
     }
     try {
       await axios.put(
-        `http://localhost:5000/api/tournaments/${this.props.tournamentId}/teams/${teamId}`,
+        `/api/tournaments/${this.props.tournamentId}/teams/${teamId}`,
         { name: editTeamName.trim(), players: editTeamPlayers },
         { withCredentials: true },
       );
@@ -239,12 +239,12 @@ class TournamentDetailView extends Component {
   openEditMatch = async (match) => {
     const { tournament } = this.state;
     try {
-      const res = await axios.get(`http://localhost:5000/api/fields?q=${tournament.sport}`);
+      const res = await axios.get(`/api/fields?q=${tournament.sport}`);
       const fields = res.data;
       const currentFieldId = match.fieldId || (fields[0]?._id || "");
       let slots = [];
       if (currentFieldId) {
-        const slotsRes = await axios.get(`http://localhost:5000/api/fields/${currentFieldId}/slots?date=${match.startDate}`);
+        const slotsRes = await axios.get(`/api/fields/${currentFieldId}/slots?date=${match.startDate}`);
         slots = slotsRes.data || [];
         if (match.slot && !slots.includes(match.slot)) slots = [match.slot, ...slots];
       }
@@ -265,7 +265,7 @@ class TournamentDetailView extends Component {
   onEditMatchFieldChange = async (fieldId, matchDate) => {
     this.setState({ editMatchFieldId: fieldId, editMatchSlot: "" });
     try {
-      const slotsRes = await axios.get(`http://localhost:5000/api/fields/${fieldId}/slots?date=${matchDate}`);
+      const slotsRes = await axios.get(`/api/fields/${fieldId}/slots?date=${matchDate}`);
       const slots = slotsRes.data || [];
       this.setState({ editMatchSlots: slots, editMatchSlot: slots[0] || "" });
     } catch {
@@ -278,7 +278,7 @@ class TournamentDetailView extends Component {
     this.setState({ editMatchDate: newDate, editMatchSlot: "" });
     if (!editMatchFieldId || !newDate) return;
     try {
-      const slotsRes = await axios.get(`http://localhost:5000/api/fields/${editMatchFieldId}/slots?date=${newDate}`);
+      const slotsRes = await axios.get(`/api/fields/${editMatchFieldId}/slots?date=${newDate}`);
       const slots = slotsRes.data || [];
       this.setState({ editMatchSlots: slots, editMatchSlot: slots[0] || "" });
     } catch {
@@ -294,7 +294,7 @@ class TournamentDetailView extends Component {
     }
     try {
       await axios.put(
-        `http://localhost:5000/api/tournaments/${this.props.tournamentId}/matches/${matchId}`,
+        `/api/tournaments/${this.props.tournamentId}/matches/${matchId}`,
         { fieldId: editMatchFieldId, slot: editMatchSlot, date: editMatchDate },
         { withCredentials: true },
       );

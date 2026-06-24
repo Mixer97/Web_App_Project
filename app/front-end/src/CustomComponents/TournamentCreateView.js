@@ -24,7 +24,7 @@ class TournamentCreateView extends Component {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/tournaments",
+        "/api/tournaments",
         { name: name.trim(), sport, maxTeams: Number(maxTeams), startDate },
         { withCredentials: true },
       );

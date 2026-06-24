@@ -17,7 +17,7 @@ class UserCard extends Component {
     if (!expanded && !fetched) {
       this.setState({ expanded: true, loadingTournaments: true });
       axios
-        .get(`http://localhost:5000/api/users/${this.props.user._id}`)
+        .get(`/api/users/${this.props.user._id}`)
         .then((res) => {
           this.setState({
             tournaments: res.data.tournaments || [],
@@ -149,7 +149,7 @@ class UserView extends Component {
     this.setState({ loading: true });
     const params = q ? `?q=${encodeURIComponent(q)}` : "";
     axios
-      .get(`http://localhost:5000/api/users${params}`)
+      .get(`/api/users${params}`)
       .then((res) => this.setState({ users: res.data, loading: false }))
       .catch(() => this.setState({ loading: false }));
   };
