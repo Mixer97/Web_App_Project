@@ -1,0 +1,22 @@
+const express = require("express");
+const { verifyToken } = require("../middleware/auth");
+const {
+  fieldQuery,
+  getFieldDetails,
+  getFieldAvailability,
+  getFieldBooking,
+  createFieldBooking,
+  cancelFieldBooking,
+} = require("../controllers/field.controller");
+
+const router = express.Router();
+
+router.get("/bookings/user", verifyToken, getFieldBooking);
+
+router.get("/", fieldQuery);
+router.get("/:id", getFieldDetails);
+router.get("/:id/slots", getFieldAvailability);
+router.post("/:id/bookings", verifyToken, createFieldBooking);
+router.delete("/:id/bookings/:bookingId", verifyToken, cancelFieldBooking);
+
+module.exports = router;

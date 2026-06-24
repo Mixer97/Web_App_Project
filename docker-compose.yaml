@@ -1,0 +1,21 @@
+version: "3" 
+services: 
+ app: 
+   container_name: app 
+   build: . 
+   command: nodemon --watch /usr/src/app -e js index.js 
+   ports: 
+     - "5000:5000" 
+   volumes: 
+     - ./app:/usr/src/app 
+     - /usr/src/app/node_modules
+   links: 
+     - "mongo:mongosrv" 
+ mongo: 
+   container_name: mongo 
+   image: mongo 
+   volumes: 
+     - ./data:/data/db 
+     - ./init:/docker-entrypoint-initdb.d
+   ports: 
+     - '27017:27017' 
