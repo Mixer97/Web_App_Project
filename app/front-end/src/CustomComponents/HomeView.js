@@ -381,19 +381,33 @@ class HomeView extends Component {
                           </span>
                         </td>
                         <td className="text-end">
-                          <button
-                            type="button"
-                            className="btn btn-outline-danger btn-sm px-3 fw-medium"
-                            onClick={() =>
-                              this.handleCancelBooking(
-                                booking.fieldId,
-                                booking._id,
-                              )
-                            }
-                          >
-                            <i className="bi bi-trash3-fill me-1"></i> Cancel
-                            Slot
-                          </button>
+                          {booking.tournamentId ? (
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary btn-sm px-3 fw-medium"
+                              onClick={() =>
+                                this.QSetViewInParent({
+                                  page: "tournamentDetailView",
+                                  tournamentId: booking.tournamentId,
+                                })
+                              }
+                            >
+                              <i className="bi bi-trophy me-1"></i> Manage
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger btn-sm px-3 fw-medium"
+                              onClick={() =>
+                                this.handleCancelBooking(
+                                  booking.fieldId,
+                                  booking._id,
+                                )
+                              }
+                            >
+                              <i className="bi bi-trash3-fill me-1"></i> Cancel Slot
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

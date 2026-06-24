@@ -495,6 +495,7 @@ const updateMatch = async (req, res) => {
       userId: tournament.creatorId,
       date: newDate,
       slot,
+      tournamentId: tournamentId,
     });
 
     match.fieldId = fieldId;
@@ -602,6 +603,7 @@ const generateRoundRobin = async (teams, tournament) => {
           userId: tournament.creatorId,
           date: matchDate,
           slot: availability.slot,
+          tournamentId: tournament._id.toString(),
         });
       }
     }

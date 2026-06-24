@@ -4,6 +4,7 @@ const bookingSchema = new mongoose.Schema({
   fieldId: { type: String, required: true },
   userId: { type: String, required: true },
   date: { type: String, required: true },
+  tournamentId: { type: String, default: null },
   slot: {
     type: String,
     match: [

@@ -877,7 +877,7 @@ class TournamentDetailView extends Component {
                           className="btn btn-sm btn-outline-secondary"
                           onClick={() => this.openEditMatch(match)}
                         >
-                          <i className="bi bi-pencil me-1"></i>Edit Field
+                          <i className="bi bi-pencil me-1"></i>Edit Booking
                         </button>
                       )}
                     </div>

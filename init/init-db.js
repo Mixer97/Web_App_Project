@@ -92,19 +92,12 @@ var fieldVolleyball2 = db.fields.findOne({ name: "Campo Volleyball 2" });
 var fieldBasketball1 = db.fields.findOne({ name: "Campo Basketball 1" });
 var fieldBasketball2 = db.fields.findOne({ name: "Campo Basketball 2" });
 
-// ─── Bookings ─────────────────────────────────────────────────────────────────
+// ─── Bookings (personal) ──────────────────────────────────────────────────────
 db.bookings.insertMany([
-  // Manual bookings
   { fieldId: fieldFootball1._id.toString(),   userId: mario._id.toString(),  date: "2026-06-25", slot: "09:00 - 10:00" },
   { fieldId: fieldBasketball1._id.toString(), userId: anna._id.toString(),   date: "2026-06-25", slot: "14:30 - 15:30" },
   { fieldId: fieldVolleyball1._id.toString(), userId: mario._id.toString(),  date: "2026-06-30", slot: "16:00 - 17:00" },
   { fieldId: fieldBasketball1._id.toString(), userId: luigi._id.toString(),  date: "2026-06-30", slot: "09:30 - 10:30" },
-  // T3 (Summer Football Cup) — Round 3 upcoming matches
-  { fieldId: fieldFootball1._id.toString(),   userId: mario._id.toString(),  date: "2026-06-25", slot: "14:00 - 15:00" },
-  { fieldId: fieldFootball2._id.toString(),   userId: mario._id.toString(),  date: "2026-06-27", slot: "15:00 - 16:00" },
-  // T4 (City Volleyball League) — Round 3 upcoming matches
-  { fieldId: fieldVolleyball1._id.toString(), userId: luigi._id.toString(),  date: "2026-06-25", slot: "16:00 - 17:00" },
-  { fieldId: fieldVolleyball2._id.toString(), userId: luigi._id.toString(),  date: "2026-06-27", slot: "18:00 - 19:00" },
 ]);
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -611,5 +604,15 @@ db.tournaments.insertOne({
   status: "active",
   teamIds: [t8_team1.toString(), t8_team2.toString(), t8_team3.toString(), t8_team4.toString()],
 });
+
+// ─── Bookings (tournament-generated) ─────────────────────────────────────────
+db.bookings.insertMany([
+  // T3 (Summer Football Cup) — Round 3 upcoming matches
+  { fieldId: fieldFootball1._id.toString(),   userId: mario._id.toString(),  date: "2026-06-25", slot: "14:00 - 15:00", tournamentId: t3Id.toString() },
+  { fieldId: fieldFootball2._id.toString(),   userId: mario._id.toString(),  date: "2026-06-27", slot: "15:00 - 16:00", tournamentId: t3Id.toString() },
+  // T4 (City Volleyball League) — Round 3 upcoming matches
+  { fieldId: fieldVolleyball1._id.toString(), userId: luigi._id.toString(),  date: "2026-06-25", slot: "16:00 - 17:00", tournamentId: t4Id.toString() },
+  { fieldId: fieldVolleyball2._id.toString(), userId: luigi._id.toString(),  date: "2026-06-27", slot: "18:00 - 19:00", tournamentId: t4Id.toString() },
+]);
 
 print("Database initialized: 5 users, 6 fields, 8 tournaments, 28 teams, 36 matches.");
