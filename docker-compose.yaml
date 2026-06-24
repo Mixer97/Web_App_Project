@@ -9,8 +9,11 @@ services:
    volumes: 
      - ./app:/usr/src/app 
      - /usr/src/app/node_modules
-   links: 
-     - "mongo:mongosrv" 
+   environment:
+     - JWT_SECRET=lookandbook_secret
+     - MONGO_URL=mongodb://mongosrv:27017/sportapp
+   links:
+     - "mongo:mongosrv"
  mongo: 
    container_name: mongo 
    image: mongo 
