@@ -1,7 +1,7 @@
 version: "3" 
 services: 
  app: 
-   container_name: app 
+   container_name: app_Francesco_Rumiz_IN2300010
    build: . 
    command: nodemon --watch /usr/src/app -e js index.js 
    ports: 
@@ -15,7 +15,7 @@ services:
    links:
      - "mongo:mongosrv"
  mongo: 
-   container_name: mongo 
+   container_name: mongo_Francesco_Rumiz_IN2300010
    image: mongo 
    volumes: 
      - ./data:/data/db 
